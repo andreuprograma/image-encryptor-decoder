@@ -1,11 +1,12 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Download, Eye, EyeOff, X, Upload } from "lucide-react";
+import { Download, Eye, EyeOff, X, Upload, Folder } from "lucide-react";
 import CryptoJS from "crypto-js";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 export const DecryptTab = ({ state, setState }) => {
   const [showSeedWord, setShowSeedWord] = useState(false);
@@ -50,15 +51,37 @@ export const DecryptTab = ({ state, setState }) => {
     }
   };
 
+  const handleMobileFileSelect = async () => {
+    try {
+      const result = await Filesystem.pickFiles({
+        multiple: false,
+      });
+      
+      if (result.files.length > 0) {
+        const file = result.files[0];
+        if (file.name.endsWith('.enc')) {
+          const response = await fetch(file.path);
+          const blob = await response.blob();
+          const newFile = new File([blob], file.name, { type: 'application/octet-stream' });
+          handleFileSelect(newFile);
+        } else {
+          toast({
+            variant: "destructive",
+            description: "Por favor, selecciona un archivo .enc válido",
+          });
+        }
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        description: "Error al seleccionar el archivo",
+      });
+    }
+  };
+
   const handleClick = () => {
     if (isMobile) {
-      // En móviles, intentamos abrir el selector de archivos en la carpeta de descargas
-      const input = document.getElementById("enc-file-input") as HTMLInputElement;
-      if (input) {
-        input.setAttribute("webkitdirectory", "");
-        input.setAttribute("directory", "");
-        input.click();
-      }
+      handleMobileFileSelect();
     } else {
       document.getElementById("enc-file-input")?.click();
     }
@@ -155,40 +178,51 @@ export const DecryptTab = ({ state, setState }) => {
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
-      <div
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleFileDrop}
-        className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
-        onClick={handleClick}
-      >
-        <input
-          type="file"
-          id="enc-file-input"
-          className="hidden"
-          accept=".enc"
-          onChange={handleFileInput}
-        />
-        {state.encFile ? (
-          <div>
-            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-            <p className="text-green-600 mb-2">
-              Archivo seleccionado: {state.encFile.name}
-            </p>
-            {state.fileSizes && (
-              <p className="text-sm text-gray-500">
-                Tamaño archivo encriptado: {(state.fileSizes.encrypted / 1024).toFixed(2)} KB
+      {isMobile ? (
+        <Button
+          onClick={handleMobileFileSelect}
+          className="w-full flex items-center justify-center gap-2"
+          variant="outline"
+        >
+          <Folder className="h-4 w-4" />
+          Seleccionar archivo .enc
+        </Button>
+      ) : (
+        <div
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleFileDrop}
+          className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => document.getElementById("enc-file-input")?.click()}
+        >
+          <input
+            type="file"
+            id="enc-file-input"
+            className="hidden"
+            accept=".enc"
+            onChange={handleFileInput}
+          />
+          {state.encFile ? (
+            <div>
+              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+              <p className="text-green-600 mb-2">
+                Archivo seleccionado: {state.encFile.name}
               </p>
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-2">
-            <Upload className="h-12 w-12 text-gray-400" />
-            <p className="text-gray-500">
-              Arrastra y suelta un archivo .enc aquí o haz clic para seleccionar
-            </p>
-          </div>
-        )}
-      </div>
+              {state.fileSizes && (
+                <p className="text-sm text-gray-500">
+                  Tamaño archivo encriptado: {(state.fileSizes.encrypted / 1024).toFixed(2)} KB
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <Upload className="h-12 w-12 text-gray-400" />
+              <p className="text-gray-500">
+                Arrastra y suelta un archivo .enc aquí o haz clic para seleccionar
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="space-y-2">
         <label htmlFor="decrypt-seed-word" className="text-sm font-medium">

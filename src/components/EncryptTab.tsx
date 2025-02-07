@@ -1,16 +1,13 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { RotateCw, RotateCcw, Eye, EyeOff, X, Upload, Camera, Folder } from "lucide-react";
+import { RotateCw, RotateCcw, Eye, EyeOff, X, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import CryptoJS from "crypto-js";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Camera as CapCamera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { Filesystem, Directory } from '@capacitor/filesystem';
 
 export const EncryptTab = ({ state, setState }) => {
   const [showSeedWord, setShowSeedWord] = useState(false);
-  const isMobile = useIsMobile();
 
   const handleImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -40,52 +37,6 @@ export const EncryptTab = ({ state, setState }) => {
     const file = e.target.files?.[0];
     if (file) {
       handleImageSelect(file);
-    }
-  };
-
-  const handleMobileCamera = async () => {
-    try {
-      const image = await CapCamera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.Base64,
-        source: CameraSource.Camera
-      });
-
-      if (image.base64String) {
-        const response = await fetch(`data:image/jpeg;base64,${image.base64String}`);
-        const blob = await response.blob();
-        const file = new File([blob], "camera_photo.jpg", { type: 'image/jpeg' });
-        handleImageSelect(file);
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        description: "Error al acceder a la cámara",
-      });
-    }
-  };
-
-  const handleMobileFileSelect = async () => {
-    try {
-      const image = await CapCamera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.Base64,
-        source: CameraSource.Photos
-      });
-
-      if (image.base64String) {
-        const response = await fetch(`data:image/jpeg;base64,${image.base64String}`);
-        const blob = await response.blob();
-        const file = new File([blob], "selected_photo.jpg", { type: 'image/jpeg' });
-        handleImageSelect(file);
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        description: "Error al seleccionar el archivo",
-      });
     }
   };
 
@@ -178,87 +129,67 @@ export const EncryptTab = ({ state, setState }) => {
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
-      {isMobile ? (
-        <div className="flex flex-col gap-4">
-          <Button
-            onClick={handleMobileFileSelect}
-            className="w-full flex items-center justify-center gap-2"
-            variant="outline"
-          >
-            <Folder className="h-4 w-4" />
-            Seleccionar desde galería
-          </Button>
-          <Button
-            onClick={handleMobileCamera}
-            className="w-full flex items-center justify-center gap-2"
-            variant="outline"
-          >
-            <Camera className="h-4 w-4" />
-            Tomar foto
-          </Button>
-        </div>
-      ) : (
-        <div
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={handleImageDrop}
-          className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors relative"
-          onClick={() => document.getElementById("file-input")?.click()}
-        >
-          <input
-            type="file"
-            id="file-input"
-            className="hidden"
-            accept="image/*"
-            onChange={handleFileInput}
-          />
-          {state.previewUrl ? (
-            <div className="flex flex-col items-center gap-4">
-              <div className="relative w-full max-w-md">
-                <img
-                  src={state.previewUrl}
-                  alt="Preview"
-                  className="max-h-64 object-contain transition-transform duration-300 mx-auto"
-                  style={{ transform: `rotate(${state.rotation}deg)` }}
-                />
-                <div className="absolute top-0 left-0 right-0 flex justify-center gap-2 mt-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      rotate("left");
-                    }}
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      rotate("right");
-                    }}
-                  >
-                    <RotateCw className="h-4 w-4" />
-                  </Button>
-                </div>
+      <div
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleImageDrop}
+        className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors relative"
+        onClick={() => document.getElementById("file-input")?.click()}
+      >
+        <input
+          type="file"
+          id="file-input"
+          className="hidden"
+          accept="image/*"
+          onChange={handleFileInput}
+          capture="environment"
+        />
+        {state.previewUrl ? (
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative w-full max-w-md">
+              <img
+                src={state.previewUrl}
+                alt="Preview"
+                className="max-h-64 object-contain transition-transform duration-300 mx-auto"
+                style={{ transform: `rotate(${state.rotation}deg)` }}
+              />
+              <div className="absolute top-0 left-0 right-0 flex justify-center gap-2 mt-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    rotate("left");
+                  }}
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    rotate("right");
+                  }}
+                >
+                  <RotateCw className="h-4 w-4" />
+                </Button>
               </div>
-              {state.image && (
-                <p className="text-sm text-gray-500">
-                  Tamaño original: {(state.image.size / 1024).toFixed(2)} KB
-                </p>
-              )}
             </div>
-          ) : (
-            <div className="flex flex-col items-center gap-2">
-              <Upload className="h-12 w-12 text-gray-400" />
-              <p className="text-gray-500">
-                Arrastra y suelta una imagen aquí o haz clic para seleccionar
+            {state.image && (
+              <p className="text-sm text-gray-500">
+                Tamaño original: {(state.image.size / 1024).toFixed(2)} KB
               </p>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2">
+            <Upload className="h-12 w-12 text-gray-400" />
+            <p className="text-gray-500">
+              Arrastra y suelta una imagen aquí o haz clic para seleccionar
+            </p>
+          </div>
+        )}
+      </div>
 
       <div className="space-y-2">
         <label htmlFor="seed-word" className="text-sm font-medium">

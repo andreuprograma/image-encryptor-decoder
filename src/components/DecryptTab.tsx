@@ -5,19 +5,11 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Download, Eye, EyeOff, X, Upload } from "lucide-react";
 import CryptoJS from "crypto-js";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-export const DecryptTab = () => {
-  const [encFile, setEncFile] = useState<File | null>(null);
-  const [seedWord, setSeedWord] = useState("");
+export const DecryptTab = ({ state, setState }) => {
   const [showSeedWord, setShowSeedWord] = useState(false);
-  const [decryptedImage, setDecryptedImage] = useState<string>("");
-  const [fileName, setFileName] = useState("");
-  const [fileSizes, setFileSizes] = useState<{
-    encrypted: number;
-    decrypted: number;
-  } | null>(null);
-  const [lastEncryptedContent, setLastEncryptedContent] = useState<string | null>(null);
-  const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
+  const isMobile = useIsMobile();
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -33,17 +25,20 @@ export const DecryptTab = () => {
   };
 
   const handleFileSelect = (file: File) => {
-    setEncFile(file);
-    setFileName(`decrypted_${file.name.replace('.enc', '')}`);
-    setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
-    setDecryptedImage("");
-    setLastEncryptedContent(null);
+    setState(prev => ({
+      ...prev,
+      encFile: file,
+      fileName: `decrypted_${file.name.replace('.enc', '')}`,
+      fileSizes: prev.fileSizes ? { ...prev.fileSizes, encrypted: file.size } : { encrypted: file.size, decrypted: 0 },
+      decryptedImage: "",
+      lastEncryptedContent: null,
+    }));
     toast({
       description: "Archivo .enc cargado correctamente",
     });
   };
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.name.endsWith('.enc')) {
       handleFileSelect(file);
@@ -55,8 +50,22 @@ export const DecryptTab = () => {
     }
   };
 
+  const handleClick = () => {
+    if (isMobile) {
+      // En móviles, intentamos abrir el selector de archivos en la carpeta de descargas
+      const input = document.getElementById("enc-file-input") as HTMLInputElement;
+      if (input) {
+        input.setAttribute("webkitdirectory", "");
+        input.setAttribute("directory", "");
+        input.click();
+      }
+    } else {
+      document.getElementById("enc-file-input")?.click();
+    }
+  };
+
   const handleDecrypt = async () => {
-    if (!encFile || !seedWord) return;
+    if (!state.encFile || !state.seedWord) return;
 
     try {
       const reader = new FileReader();
@@ -64,23 +73,27 @@ export const DecryptTab = () => {
         const encrypted = e.target?.result as string;
         
         try {
-          const decrypted = CryptoJS.AES.decrypt(encrypted, seedWord).toString(CryptoJS.enc.Utf8);
+          const decrypted = CryptoJS.AES.decrypt(encrypted, state.seedWord).toString(CryptoJS.enc.Utf8);
           
           if (!decrypted) {
             throw new Error("Palabra semilla incorrecta");
           }
 
-          setDecryptedImage(decrypted);
-          const decryptedSize = new Blob([decrypted]).size;
-          setFileSizes(prev => prev ? { ...prev, decrypted: decryptedSize } : { encrypted: encFile.size, decrypted: decryptedSize });
-          setLastEncryptedContent(encrypted);
-          setLastUsedSeed(seedWord);
+          setState(prev => ({
+            ...prev,
+            decryptedImage: decrypted,
+            fileSizes: prev.fileSizes ? 
+              { ...prev.fileSizes, decrypted: new Blob([decrypted]).size } : 
+              { encrypted: state.encFile.size, decrypted: new Blob([decrypted]).size },
+            lastEncryptedContent: encrypted,
+            lastUsedSeed: state.seedWord
+          }));
           
           toast({
             description: "Imagen desencriptada correctamente ✨",
           });
         } catch (error) {
-          setDecryptedImage("");
+          setState(prev => ({ ...prev, decryptedImage: "" }));
           toast({
             variant: "destructive",
             description: "Palabra semilla incorrecta o archivo corrupto",
@@ -88,7 +101,7 @@ export const DecryptTab = () => {
         }
       };
 
-      reader.readAsText(encFile);
+      reader.readAsText(state.encFile);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -98,11 +111,11 @@ export const DecryptTab = () => {
   };
 
   const handleDownloadDecrypted = () => {
-    if (!decryptedImage) return;
+    if (!state.decryptedImage) return;
 
     const link = document.createElement('a');
-    link.href = decryptedImage;
-    link.download = fileName;
+    link.href = state.decryptedImage;
+    link.download = state.fileName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -113,20 +126,31 @@ export const DecryptTab = () => {
   };
 
   const handleClear = () => {
-    setEncFile(null);
-    setSeedWord("");
-    setDecryptedImage("");
-    setFileName("");
-    setFileSizes(null);
-    setLastEncryptedContent(null);
-    setLastUsedSeed("");
+    setState({
+      encFile: null,
+      seedWord: "",
+      decryptedImage: "",
+      fileName: "",
+      fileSizes: null,
+      lastEncryptedContent: null,
+      lastUsedSeed: "",
+    });
     toast({
       description: "Campos limpiados correctamente",
     });
   };
 
-  const isDecryptDisabled = !encFile || !seedWord || (
-    lastEncryptedContent === (encFile ? lastEncryptedContent : null) && lastUsedSeed === seedWord
+  const clearSeedWord = () => {
+    setState(prev => ({
+      ...prev,
+      seedWord: "",
+      lastUsedSeed: ""
+    }));
+  };
+
+  const isDecryptDisabled = !state.encFile || !state.seedWord || (
+    state.lastEncryptedContent === (state.encFile ? state.lastEncryptedContent : null) && 
+    state.lastUsedSeed === state.seedWord
   );
 
   return (
@@ -135,7 +159,7 @@ export const DecryptTab = () => {
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleFileDrop}
         className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
-        onClick={() => document.getElementById("enc-file-input")?.click()}
+        onClick={handleClick}
       >
         <input
           type="file"
@@ -143,17 +167,16 @@ export const DecryptTab = () => {
           className="hidden"
           accept=".enc"
           onChange={handleFileInput}
-          capture="environment"
         />
-        {encFile ? (
+        {state.encFile ? (
           <div>
             <Upload className="h-12 w-12 text-gray-400 mx-auto mb-2" />
             <p className="text-green-600 mb-2">
-              Archivo seleccionado: {encFile.name}
+              Archivo seleccionado: {state.encFile.name}
             </p>
-            {fileSizes && (
+            {state.fileSizes && (
               <p className="text-sm text-gray-500">
-                Tamaño archivo encriptado: {(fileSizes.encrypted / 1024).toFixed(2)} KB
+                Tamaño archivo encriptado: {(state.fileSizes.encrypted / 1024).toFixed(2)} KB
               </p>
             )}
           </div>
@@ -175,23 +198,34 @@ export const DecryptTab = () => {
           <Input
             id="decrypt-seed-word"
             type={showSeedWord ? "text" : "password"}
-            value={seedWord}
-            onChange={(e) => setSeedWord(e.target.value)}
+            value={state.seedWord}
+            onChange={(e) => setState(prev => ({ ...prev, seedWord: e.target.value }))}
             placeholder="Introduce la palabra semilla"
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2"
-            onClick={() => setShowSeedWord(!showSeedWord)}
-          >
-            {showSeedWord ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </Button>
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSeedWord(!showSeedWord)}
+            >
+              {showSeedWord ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
+            {state.seedWord && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={clearSeedWord}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
-      {decryptedImage && (
+      {state.decryptedImage && (
         <div className="space-y-2">
           <label htmlFor="decrypted-file-name" className="text-sm font-medium">
             Nombre del archivo descargado
@@ -199,13 +233,13 @@ export const DecryptTab = () => {
           <Input
             id="decrypted-file-name"
             type="text"
-            value={fileName}
-            onChange={(e) => setFileName(e.target.value)}
+            value={state.fileName}
+            onChange={(e) => setState(prev => ({ ...prev, fileName: e.target.value }))}
             placeholder="nombre_archivo"
           />
-          {fileSizes?.decrypted && (
+          {state.fileSizes?.decrypted && (
             <p className="text-sm text-gray-500">
-              Tamaño archivo desencriptado: {(fileSizes.decrypted / 1024).toFixed(2)} KB
+              Tamaño archivo desencriptado: {(state.fileSizes.decrypted / 1024).toFixed(2)} KB
             </p>
           )}
         </div>
@@ -222,7 +256,7 @@ export const DecryptTab = () => {
         
         <Button
           onClick={handleDownloadDecrypted}
-          disabled={!decryptedImage}
+          disabled={!state.decryptedImage}
           variant="outline"
           className="flex-1 flex items-center gap-2"
         >
@@ -240,11 +274,11 @@ export const DecryptTab = () => {
         </Button>
       </div>
 
-      {decryptedImage && (
+      {state.decryptedImage && (
         <div className="mt-4">
           <h3 className="text-lg font-medium mb-2">Imagen Desencriptada</h3>
           <img
-            src={decryptedImage}
+            src={state.decryptedImage}
             alt="Imagen desencriptada"
             className="max-h-64 mx-auto object-contain"
           />

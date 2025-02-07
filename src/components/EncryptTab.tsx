@@ -6,19 +6,8 @@ import { RotateCw, RotateCcw, Eye, EyeOff, X, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import CryptoJS from "crypto-js";
 
-export const EncryptTab = () => {
-  const [image, setImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [seedWord, setSeedWord] = useState("");
+export const EncryptTab = ({ state, setState }) => {
   const [showSeedWord, setShowSeedWord] = useState(false);
-  const [rotation, setRotation] = useState(0);
-  const [encryptedData, setEncryptedData] = useState<{
-    data: string;
-    size: number;
-  } | null>(null);
-  const [fileName, setFileName] = useState("");
-  const [lastEncryptedImage, setLastEncryptedImage] = useState<string | null>(null);
-  const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
 
   const handleImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -34,12 +23,14 @@ export const EncryptTab = () => {
   };
 
   const handleImageSelect = (file: File) => {
-    setImage(file);
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    setFileName(`${file.name}.enc`);
-    setEncryptedData(null);
-    setLastEncryptedImage(null);
+    setState(prev => ({
+      ...prev,
+      image: file,
+      previewUrl: URL.createObjectURL(file),
+      fileName: `${file.name}.enc`,
+      encryptedData: null,
+      lastEncryptedImage: null
+    }));
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,32 +41,38 @@ export const EncryptTab = () => {
   };
 
   const rotate = (direction: "left" | "right") => {
-    setRotation(prev => direction === "right" ? prev + 90 : prev - 90);
+    setState(prev => ({
+      ...prev,
+      rotation: direction === "right" ? prev.rotation + 90 : prev.rotation - 90
+    }));
   };
 
   const handleEncrypt = async () => {
-    if (!image || !seedWord) return;
+    if (!state.image || !state.seedWord) return;
 
     try {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64 = e.target?.result as string;
-        const encrypted = CryptoJS.AES.encrypt(base64, seedWord).toString();
+        const encrypted = CryptoJS.AES.encrypt(base64, state.seedWord).toString();
         const encryptedSize = new Blob([encrypted]).size;
         
-        setEncryptedData({
-          data: encrypted,
-          size: encryptedSize
-        });
-        setLastEncryptedImage(base64);
-        setLastUsedSeed(seedWord);
+        setState(prev => ({
+          ...prev,
+          encryptedData: {
+            data: encrypted,
+            size: encryptedSize
+          },
+          lastEncryptedImage: base64,
+          lastUsedSeed: state.seedWord
+        }));
 
         toast({
           description: "Imagen encriptada correctamente ✨",
         });
       };
 
-      reader.readAsDataURL(image);
+      reader.readAsDataURL(state.image);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -85,13 +82,13 @@ export const EncryptTab = () => {
   };
 
   const handleDownload = () => {
-    if (!encryptedData) return;
+    if (!state.encryptedData) return;
     
-    const blob = new Blob([encryptedData.data], { type: 'application/octet-stream' });
+    const blob = new Blob([state.encryptedData.data], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = fileName;
+    a.download = state.fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -103,21 +100,31 @@ export const EncryptTab = () => {
   };
 
   const handleClear = () => {
-    setImage(null);
-    setPreviewUrl("");
-    setSeedWord("");
-    setRotation(0);
-    setEncryptedData(null);
-    setFileName("");
-    setLastEncryptedImage(null);
-    setLastUsedSeed("");
+    setState({
+      image: null,
+      previewUrl: "",
+      seedWord: "",
+      rotation: 0,
+      encryptedData: null,
+      fileName: "",
+      lastEncryptedImage: null,
+      lastUsedSeed: "",
+    });
     toast({
       description: "Campos limpiados correctamente",
     });
   };
 
-  const isEncryptDisabled = !image || !seedWord || (
-    lastEncryptedImage === previewUrl && lastUsedSeed === seedWord
+  const clearSeedWord = () => {
+    setState(prev => ({
+      ...prev,
+      seedWord: "",
+      lastUsedSeed: ""
+    }));
+  };
+
+  const isEncryptDisabled = !state.image || !state.seedWord || (
+    state.lastEncryptedImage === state.previewUrl && state.lastUsedSeed === state.seedWord
   );
 
   return (
@@ -136,16 +143,16 @@ export const EncryptTab = () => {
           onChange={handleFileInput}
           capture="environment"
         />
-        {previewUrl ? (
+        {state.previewUrl ? (
           <div className="flex flex-col items-center gap-4">
             <div className="relative w-full max-w-md">
               <img
-                src={previewUrl}
+                src={state.previewUrl}
                 alt="Preview"
                 className="max-h-64 object-contain transition-transform duration-300 mx-auto"
-                style={{ transform: `rotate(${rotation}deg)` }}
+                style={{ transform: `rotate(${state.rotation}deg)` }}
               />
-              <div className="absolute top-0 left-0 right-0 flex justify-center gap-2 -mt-8">
+              <div className="absolute top-0 left-0 right-0 flex justify-center gap-2 mt-2">
                 <Button
                   variant="outline"
                   size="icon"
@@ -168,9 +175,9 @@ export const EncryptTab = () => {
                 </Button>
               </div>
             </div>
-            {image && (
+            {state.image && (
               <p className="text-sm text-gray-500">
-                Tamaño original: {(image.size / 1024).toFixed(2)} KB
+                Tamaño original: {(state.image.size / 1024).toFixed(2)} KB
               </p>
             )}
           </div>
@@ -192,23 +199,34 @@ export const EncryptTab = () => {
           <Input
             id="seed-word"
             type={showSeedWord ? "text" : "password"}
-            value={seedWord}
-            onChange={(e) => setSeedWord(e.target.value)}
+            value={state.seedWord}
+            onChange={(e) => setState(prev => ({ ...prev, seedWord: e.target.value }))}
             placeholder="Introduce la palabra semilla"
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2"
-            onClick={() => setShowSeedWord(!showSeedWord)}
-          >
-            {showSeedWord ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </Button>
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSeedWord(!showSeedWord)}
+            >
+              {showSeedWord ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
+            {state.seedWord && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={clearSeedWord}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
-      {encryptedData && (
+      {state.encryptedData && (
         <div className="space-y-2">
           <label htmlFor="file-name" className="text-sm font-medium">
             Nombre del archivo encriptado
@@ -216,12 +234,12 @@ export const EncryptTab = () => {
           <Input
             id="file-name"
             type="text"
-            value={fileName}
-            onChange={(e) => setFileName(e.target.value)}
+            value={state.fileName}
+            onChange={(e) => setState(prev => ({ ...prev, fileName: e.target.value }))}
             placeholder="nombre_archivo.enc"
           />
           <p className="text-sm text-gray-500">
-            Tamaño encriptado: {(encryptedData.size / 1024).toFixed(2)} KB
+            Tamaño encriptado: {(state.encryptedData.size / 1024).toFixed(2)} KB
           </p>
         </div>
       )}
@@ -237,7 +255,7 @@ export const EncryptTab = () => {
         <Button
           variant="outline"
           onClick={handleDownload}
-          disabled={!encryptedData}
+          disabled={!state.encryptedData}
           className="flex-1"
         >
           Descargar

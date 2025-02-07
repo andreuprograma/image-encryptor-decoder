@@ -15,7 +15,7 @@ export const DecryptTab = () => {
     encrypted: number;
     decrypted: number;
   } | null>(null);
-  const [lastDecryptedFile, setLastDecryptedFile] = useState<string | null>(null);
+  const [lastEncryptedContent, setLastEncryptedContent] = useState<string | null>(null);
   const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -36,7 +36,7 @@ export const DecryptTab = () => {
     setFileName(`decrypted_${file.name.replace('.enc', '')}`);
     setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
     setDecryptedImage("");
-    setLastDecryptedFile(null);
+    setLastEncryptedContent(null);
     toast({
       description: "Archivo .enc cargado correctamente",
     });
@@ -72,7 +72,7 @@ export const DecryptTab = () => {
           setDecryptedImage(decrypted);
           const decryptedSize = new Blob([decrypted]).size;
           setFileSizes(prev => prev ? { ...prev, decrypted: decryptedSize } : { encrypted: encFile.size, decrypted: decryptedSize });
-          setLastDecryptedFile(encrypted);
+          setLastEncryptedContent(encrypted);
           setLastUsedSeed(seedWord);
           
           toast({
@@ -112,7 +112,7 @@ export const DecryptTab = () => {
   };
 
   const isDecryptDisabled = !encFile || !seedWord || (
-    lastDecryptedFile === encFile && lastUsedSeed === seedWord
+    lastEncryptedContent === (encFile ? lastEncryptedContent : null) && lastUsedSeed === seedWord
   );
 
   return (

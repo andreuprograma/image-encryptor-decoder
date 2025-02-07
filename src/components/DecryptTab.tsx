@@ -15,17 +15,14 @@ export const DecryptTab = () => {
     encrypted: number;
     decrypted: number;
   } | null>(null);
+  const [lastDecryptedFile, setLastDecryptedFile] = useState<string | null>(null);
+  const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.name.endsWith('.enc')) {
-      setEncFile(file);
-      setFileName(`decrypted_${file.name.replace('.enc', '')}`);
-      setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
-      toast({
-        description: "Archivo .enc cargado correctamente",
-      });
+      handleFileSelect(file);
     } else {
       toast({
         variant: "destructive",
@@ -34,15 +31,21 @@ export const DecryptTab = () => {
     }
   };
 
+  const handleFileSelect = (file: File) => {
+    setEncFile(file);
+    setFileName(`decrypted_${file.name.replace('.enc', '')}`);
+    setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
+    setDecryptedImage("");
+    setLastDecryptedFile(null);
+    toast({
+      description: "Archivo .enc cargado correctamente",
+    });
+  };
+
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.name.endsWith('.enc')) {
-      setEncFile(file);
-      setFileName(`decrypted_${file.name.replace('.enc', '')}`);
-      setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
-      toast({
-        description: "Archivo .enc cargado correctamente",
-      });
+      handleFileSelect(file);
     } else if (file) {
       toast({
         variant: "destructive",
@@ -69,6 +72,8 @@ export const DecryptTab = () => {
           setDecryptedImage(decrypted);
           const decryptedSize = new Blob([decrypted]).size;
           setFileSizes(prev => prev ? { ...prev, decrypted: decryptedSize } : { encrypted: encFile.size, decrypted: decryptedSize });
+          setLastDecryptedFile(encrypted);
+          setLastUsedSeed(seedWord);
           
           toast({
             description: "Imagen desencriptada correctamente ✨",
@@ -105,6 +110,10 @@ export const DecryptTab = () => {
       description: "Imagen descargada correctamente 💾",
     });
   };
+
+  const isDecryptDisabled = !encFile || !seedWord || (
+    lastDecryptedFile === encFile && lastUsedSeed === seedWord
+  );
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
@@ -175,7 +184,7 @@ export const DecryptTab = () => {
       <div className="flex gap-2">
         <Button
           onClick={handleDecrypt}
-          disabled={!encFile || !seedWord}
+          disabled={isDecryptDisabled}
           className="flex-1"
         >
           Desencriptar

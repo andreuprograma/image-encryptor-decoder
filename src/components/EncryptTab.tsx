@@ -16,6 +16,8 @@ export const EncryptTab = () => {
     size: number;
   } | null>(null);
   const [fileName, setFileName] = useState("");
+  const [lastEncryptedImage, setLastEncryptedImage] = useState<string | null>(null);
+  const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
 
   const handleImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -36,6 +38,7 @@ export const EncryptTab = () => {
     setPreviewUrl(url);
     setFileName(`${file.name}.enc`);
     setEncryptedData(null);
+    setLastEncryptedImage(null);
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +66,8 @@ export const EncryptTab = () => {
           data: encrypted,
           size: encryptedSize
         });
+        setLastEncryptedImage(base64);
+        setLastUsedSeed(seedWord);
 
         toast({
           description: "Imagen encriptada correctamente ✨",
@@ -95,6 +100,10 @@ export const EncryptTab = () => {
       description: "Archivo encriptado descargado correctamente 💾",
     });
   };
+
+  const isEncryptDisabled = !image || !seedWord || (
+    lastEncryptedImage === previewUrl && lastUsedSeed === seedWord
+  );
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
@@ -188,7 +197,7 @@ export const EncryptTab = () => {
       <div className="flex gap-4">
         <Button
           onClick={handleEncrypt}
-          disabled={!image || !seedWord}
+          disabled={isEncryptDisabled}
           className="flex-1"
         >
           Encriptar

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import CryptoJS from "crypto-js";
 
 export const DecryptTab = () => {
   const [encFile, setEncFile] = useState<File | null>(null);
@@ -37,11 +38,44 @@ export const DecryptTab = () => {
   };
 
   const handleDecrypt = async () => {
-    // Implementaremos la desencriptación en el siguiente paso
-    toast({
-      title: "Próximamente",
-      description: "La funcionalidad de desencriptación estará disponible pronto.",
-    });
+    if (!encFile || !seedWord) return;
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const encrypted = e.target?.result as string;
+        
+        try {
+          // Intentar desencriptar
+          const decrypted = CryptoJS.AES.decrypt(encrypted, seedWord).toString(CryptoJS.enc.Utf8);
+          
+          if (!decrypted) {
+            throw new Error("Palabra semilla incorrecta");
+          }
+
+          setDecryptedImage(decrypted);
+          toast({
+            title: "¡Éxito!",
+            description: "Imagen desencriptada correctamente",
+          });
+        } catch (error) {
+          setDecryptedImage("");
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Palabra semilla incorrecta o archivo corrupto",
+          });
+        }
+      };
+
+      reader.readAsText(encFile);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Error al desencriptar la imagen",
+      });
+    }
   };
 
   return (

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RotateCw, RotateCcw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import CryptoJS from "crypto-js";
 
 export const EncryptTab = () => {
   const [image, setImage] = useState<File | null>(null);
@@ -43,11 +44,47 @@ export const EncryptTab = () => {
   };
 
   const handleEncrypt = async () => {
-    // Implementaremos la encriptación en el siguiente paso
-    toast({
-      title: "Próximamente",
-      description: "La funcionalidad de encriptación estará disponible pronto.",
-    });
+    if (!image || !seedWord) return;
+
+    try {
+      // Convertir la imagen a Base64
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string;
+        
+        // Encriptar usando AES
+        const encrypted = CryptoJS.AES.encrypt(base64, seedWord).toString();
+        
+        // Crear y descargar el archivo .enc
+        const blob = new Blob([encrypted], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${image.name}.enc`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        toast({
+          title: "¡Éxito!",
+          description: "Imagen encriptada correctamente",
+        });
+      };
+
+      reader.readAsDataURL(image);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Error al encriptar la imagen",
+      });
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!image || !seedWord) return;
+    handleEncrypt();
   };
 
   return (
@@ -129,6 +166,7 @@ export const EncryptTab = () => {
         </Button>
         <Button
           variant="outline"
+          onClick={handleDownload}
           disabled={!image || !seedWord}
           className="flex-1"
         >

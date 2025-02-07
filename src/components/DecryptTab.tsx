@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { Download } from "lucide-react";
 import CryptoJS from "crypto-js";
 
 export const DecryptTab = () => {
@@ -15,11 +16,13 @@ export const DecryptTab = () => {
     const file = e.dataTransfer.files[0];
     if (file && file.name.endsWith('.enc')) {
       setEncFile(file);
+      toast({
+        description: "Archivo .enc cargado correctamente",
+      });
     } else {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Por favor, selecciona un archivo .enc válido.",
+        description: "Por favor, selecciona un archivo .enc válido",
       });
     }
   };
@@ -28,11 +31,13 @@ export const DecryptTab = () => {
     const file = e.target.files?.[0];
     if (file && file.name.endsWith('.enc')) {
       setEncFile(file);
+      toast({
+        description: "Archivo .enc cargado correctamente",
+      });
     } else if (file) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Por favor, selecciona un archivo .enc válido.",
+        description: "Por favor, selecciona un archivo .enc válido",
       });
     }
   };
@@ -46,7 +51,6 @@ export const DecryptTab = () => {
         const encrypted = e.target?.result as string;
         
         try {
-          // Intentar desencriptar
           const decrypted = CryptoJS.AES.decrypt(encrypted, seedWord).toString(CryptoJS.enc.Utf8);
           
           if (!decrypted) {
@@ -55,14 +59,12 @@ export const DecryptTab = () => {
 
           setDecryptedImage(decrypted);
           toast({
-            title: "¡Éxito!",
-            description: "Imagen desencriptada correctamente",
+            description: "Imagen desencriptada correctamente ✨",
           });
         } catch (error) {
           setDecryptedImage("");
           toast({
             variant: "destructive",
-            title: "Error",
             description: "Palabra semilla incorrecta o archivo corrupto",
           });
         }
@@ -72,15 +74,28 @@ export const DecryptTab = () => {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error",
         description: "Error al desencriptar la imagen",
       });
     }
   };
 
+  const handleDownloadDecrypted = () => {
+    if (!decryptedImage) return;
+
+    const link = document.createElement('a');
+    link.href = decryptedImage;
+    link.download = `decrypted_${encFile?.name.replace('.enc', '')}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      description: "Imagen descargada correctamente 💾",
+    });
+  };
+
   return (
     <div className="space-y-6 p-4 border rounded-lg">
-      {/* Zona de arrastrar y soltar */}
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleFileDrop}
@@ -105,7 +120,6 @@ export const DecryptTab = () => {
         )}
       </div>
 
-      {/* Campo de palabra semilla */}
       <div className="space-y-2">
         <label htmlFor="decrypt-seed-word" className="text-sm font-medium">
           Palabra Semilla
@@ -119,16 +133,26 @@ export const DecryptTab = () => {
         />
       </div>
 
-      {/* Botón de desencriptar */}
-      <Button
-        onClick={handleDecrypt}
-        disabled={!encFile || !seedWord}
-        className="w-full"
-      >
-        Desencriptar
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          onClick={handleDecrypt}
+          disabled={!encFile || !seedWord}
+          className="flex-1"
+        >
+          Desencriptar
+        </Button>
+        
+        <Button
+          onClick={handleDownloadDecrypted}
+          disabled={!decryptedImage}
+          variant="outline"
+          className="flex gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Descargar
+        </Button>
+      </div>
 
-      {/* Área de previsualización */}
       {decryptedImage && (
         <div className="mt-4">
           <h3 className="text-lg font-medium mb-2">Imagen Desencriptada</h3>

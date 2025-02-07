@@ -11,6 +11,11 @@ export const EncryptTab = () => {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [seedWord, setSeedWord] = useState("");
   const [rotation, setRotation] = useState(0);
+  const [encryptedData, setEncryptedData] = useState<{
+    data: string;
+    size: number;
+  } | null>(null);
+  const [fileName, setFileName] = useState("");
 
   const handleImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -20,8 +25,7 @@ export const EncryptTab = () => {
     } else {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Por favor, selecciona un archivo de imagen válido.",
+        description: "Por favor, selecciona un archivo de imagen válido",
       });
     }
   };
@@ -30,6 +34,8 @@ export const EncryptTab = () => {
     setImage(file);
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
+    setFileName(`${file.name}.enc`);
+    setEncryptedData(null);
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,28 +53,19 @@ export const EncryptTab = () => {
     if (!image || !seedWord) return;
 
     try {
-      // Convertir la imagen a Base64
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64 = e.target?.result as string;
-        
-        // Encriptar usando AES
         const encrypted = CryptoJS.AES.encrypt(base64, seedWord).toString();
+        const encryptedSize = new Blob([encrypted]).size;
         
-        // Crear y descargar el archivo .enc
-        const blob = new Blob([encrypted], { type: 'application/octet-stream' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${image.name}.enc`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        setEncryptedData({
+          data: encrypted,
+          size: encryptedSize
+        });
 
         toast({
-          title: "¡Éxito!",
-          description: "Imagen encriptada correctamente",
+          description: "Imagen encriptada correctamente ✨",
         });
       };
 
@@ -76,20 +73,31 @@ export const EncryptTab = () => {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error",
         description: "Error al encriptar la imagen",
       });
     }
   };
 
-  const handleDownload = async () => {
-    if (!image || !seedWord) return;
-    handleEncrypt();
+  const handleDownload = () => {
+    if (!encryptedData) return;
+    
+    const blob = new Blob([encryptedData.data], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      description: "Archivo encriptado descargado correctamente 💾",
+    });
   };
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
-      {/* Zona de arrastrar y soltar */}
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleImageDrop}
@@ -133,6 +141,11 @@ export const EncryptTab = () => {
                 <RotateCw className="h-4 w-4" />
               </Button>
             </div>
+            {image && (
+              <p className="text-sm text-gray-500">
+                Tamaño original: {(image.size / 1024).toFixed(2)} KB
+              </p>
+            )}
           </div>
         ) : (
           <p className="text-gray-500">
@@ -141,7 +154,6 @@ export const EncryptTab = () => {
         )}
       </div>
 
-      {/* Campo de palabra semilla */}
       <div className="space-y-2">
         <label htmlFor="seed-word" className="text-sm font-medium">
           Palabra Semilla
@@ -155,7 +167,24 @@ export const EncryptTab = () => {
         />
       </div>
 
-      {/* Botones de acción */}
+      {encryptedData && (
+        <div className="space-y-2">
+          <label htmlFor="file-name" className="text-sm font-medium">
+            Nombre del archivo encriptado
+          </label>
+          <Input
+            id="file-name"
+            type="text"
+            value={fileName}
+            onChange={(e) => setFileName(e.target.value)}
+            placeholder="nombre_archivo.enc"
+          />
+          <p className="text-sm text-gray-500">
+            Tamaño encriptado: {(encryptedData.size / 1024).toFixed(2)} KB
+          </p>
+        </div>
+      )}
+
       <div className="flex gap-4">
         <Button
           onClick={handleEncrypt}
@@ -167,7 +196,7 @@ export const EncryptTab = () => {
         <Button
           variant="outline"
           onClick={handleDownload}
-          disabled={!image || !seedWord}
+          disabled={!encryptedData}
           className="flex-1"
         >
           Descargar

@@ -10,12 +10,19 @@ export const DecryptTab = () => {
   const [encFile, setEncFile] = useState<File | null>(null);
   const [seedWord, setSeedWord] = useState("");
   const [decryptedImage, setDecryptedImage] = useState<string>("");
+  const [fileName, setFileName] = useState("");
+  const [fileSizes, setFileSizes] = useState<{
+    encrypted: number;
+    decrypted: number;
+  } | null>(null);
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.name.endsWith('.enc')) {
       setEncFile(file);
+      setFileName(`decrypted_${file.name.replace('.enc', '')}`);
+      setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
       toast({
         description: "Archivo .enc cargado correctamente",
       });
@@ -31,6 +38,8 @@ export const DecryptTab = () => {
     const file = e.target.files?.[0];
     if (file && file.name.endsWith('.enc')) {
       setEncFile(file);
+      setFileName(`decrypted_${file.name.replace('.enc', '')}`);
+      setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
       toast({
         description: "Archivo .enc cargado correctamente",
       });
@@ -58,6 +67,9 @@ export const DecryptTab = () => {
           }
 
           setDecryptedImage(decrypted);
+          const decryptedSize = new Blob([decrypted]).size;
+          setFileSizes(prev => prev ? { ...prev, decrypted: decryptedSize } : { encrypted: encFile.size, decrypted: decryptedSize });
+          
           toast({
             description: "Imagen desencriptada correctamente ✨",
           });
@@ -84,7 +96,7 @@ export const DecryptTab = () => {
 
     const link = document.createElement('a');
     link.href = decryptedImage;
-    link.download = `decrypted_${encFile?.name.replace('.enc', '')}`;
+    link.download = fileName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -110,9 +122,16 @@ export const DecryptTab = () => {
           onChange={handleFileInput}
         />
         {encFile ? (
-          <p className="text-green-600">
-            Archivo seleccionado: {encFile.name}
-          </p>
+          <div>
+            <p className="text-green-600 mb-2">
+              Archivo seleccionado: {encFile.name}
+            </p>
+            {fileSizes && (
+              <p className="text-sm text-gray-500">
+                Tamaño archivo encriptado: {(fileSizes.encrypted / 1024).toFixed(2)} KB
+              </p>
+            )}
+          </div>
         ) : (
           <p className="text-gray-500">
             Arrastra y suelta un archivo .enc aquí o haz clic para seleccionar
@@ -132,6 +151,26 @@ export const DecryptTab = () => {
           placeholder="Introduce la palabra semilla"
         />
       </div>
+
+      {decryptedImage && (
+        <div className="space-y-2">
+          <label htmlFor="decrypted-file-name" className="text-sm font-medium">
+            Nombre del archivo descargado
+          </label>
+          <Input
+            id="decrypted-file-name"
+            type="text"
+            value={fileName}
+            onChange={(e) => setFileName(e.target.value)}
+            placeholder="nombre_archivo"
+          />
+          {fileSizes?.decrypted && (
+            <p className="text-sm text-gray-500">
+              Tamaño archivo desencriptado: {(fileSizes.decrypted / 1024).toFixed(2)} KB
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="flex gap-2">
         <Button

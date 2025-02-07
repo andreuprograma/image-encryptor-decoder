@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { RotateCw, RotateCcw } from "lucide-react";
+import { RotateCw, RotateCcw, Eye, EyeOff, X, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import CryptoJS from "crypto-js";
 
@@ -10,6 +10,7 @@ export const EncryptTab = () => {
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [seedWord, setSeedWord] = useState("");
+  const [showSeedWord, setShowSeedWord] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [encryptedData, setEncryptedData] = useState<{
     data: string;
@@ -101,6 +102,20 @@ export const EncryptTab = () => {
     });
   };
 
+  const handleClear = () => {
+    setImage(null);
+    setPreviewUrl("");
+    setSeedWord("");
+    setRotation(0);
+    setEncryptedData(null);
+    setFileName("");
+    setLastEncryptedImage(null);
+    setLastUsedSeed("");
+    toast({
+      description: "Campos limpiados correctamente",
+    });
+  };
+
   const isEncryptDisabled = !image || !seedWord || (
     lastEncryptedImage === previewUrl && lastUsedSeed === seedWord
   );
@@ -110,7 +125,7 @@ export const EncryptTab = () => {
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleImageDrop}
-        className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+        className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors relative"
         onClick={() => document.getElementById("file-input")?.click()}
       >
         <input
@@ -119,36 +134,39 @@ export const EncryptTab = () => {
           className="hidden"
           accept="image/*"
           onChange={handleFileInput}
+          capture="environment"
         />
         {previewUrl ? (
           <div className="flex flex-col items-center gap-4">
-            <img
-              src={previewUrl}
-              alt="Preview"
-              className="max-h-64 object-contain transition-transform duration-300"
-              style={{ transform: `rotate(${rotation}deg)` }}
-            />
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  rotate("left");
-                }}
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  rotate("right");
-                }}
-              >
-                <RotateCw className="h-4 w-4" />
-              </Button>
+            <div className="relative w-full max-w-md">
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="max-h-64 object-contain transition-transform duration-300 mx-auto"
+                style={{ transform: `rotate(${rotation}deg)` }}
+              />
+              <div className="absolute top-0 left-0 right-0 flex justify-center gap-2 -mt-8">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    rotate("left");
+                  }}
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    rotate("right");
+                  }}
+                >
+                  <RotateCw className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             {image && (
               <p className="text-sm text-gray-500">
@@ -157,9 +175,12 @@ export const EncryptTab = () => {
             )}
           </div>
         ) : (
-          <p className="text-gray-500">
-            Arrastra y suelta una imagen aquí o haz clic para seleccionar
-          </p>
+          <div className="flex flex-col items-center gap-2">
+            <Upload className="h-12 w-12 text-gray-400" />
+            <p className="text-gray-500">
+              Arrastra y suelta una imagen aquí o haz clic para seleccionar
+            </p>
+          </div>
         )}
       </div>
 
@@ -167,13 +188,24 @@ export const EncryptTab = () => {
         <label htmlFor="seed-word" className="text-sm font-medium">
           Palabra Semilla
         </label>
-        <Input
-          id="seed-word"
-          type="text"
-          value={seedWord}
-          onChange={(e) => setSeedWord(e.target.value)}
-          placeholder="Introduce la palabra semilla"
-        />
+        <div className="relative">
+          <Input
+            id="seed-word"
+            type={showSeedWord ? "text" : "password"}
+            value={seedWord}
+            onChange={(e) => setSeedWord(e.target.value)}
+            placeholder="Introduce la palabra semilla"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-2 top-1/2 -translate-y-1/2"
+            onClick={() => setShowSeedWord(!showSeedWord)}
+          >
+            {showSeedWord ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
+        </div>
       </div>
 
       {encryptedData && (
@@ -194,7 +226,7 @@ export const EncryptTab = () => {
         </div>
       )}
 
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-2">
         <Button
           onClick={handleEncrypt}
           disabled={isEncryptDisabled}
@@ -209,6 +241,14 @@ export const EncryptTab = () => {
           className="flex-1"
         >
           Descargar
+        </Button>
+        <Button
+          variant="destructive"
+          onClick={handleClear}
+          className="flex-1"
+        >
+          <X className="h-4 w-4 mr-2" />
+          Limpiar
         </Button>
       </div>
     </div>

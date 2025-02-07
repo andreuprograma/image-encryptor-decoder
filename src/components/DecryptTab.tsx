@@ -3,12 +3,13 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Download } from "lucide-react";
+import { Download, Eye, EyeOff, X, Upload } from "lucide-react";
 import CryptoJS from "crypto-js";
 
 export const DecryptTab = () => {
   const [encFile, setEncFile] = useState<File | null>(null);
   const [seedWord, setSeedWord] = useState("");
+  const [showSeedWord, setShowSeedWord] = useState(false);
   const [decryptedImage, setDecryptedImage] = useState<string>("");
   const [fileName, setFileName] = useState("");
   const [fileSizes, setFileSizes] = useState<{
@@ -111,6 +112,19 @@ export const DecryptTab = () => {
     });
   };
 
+  const handleClear = () => {
+    setEncFile(null);
+    setSeedWord("");
+    setDecryptedImage("");
+    setFileName("");
+    setFileSizes(null);
+    setLastEncryptedContent(null);
+    setLastUsedSeed("");
+    toast({
+      description: "Campos limpiados correctamente",
+    });
+  };
+
   const isDecryptDisabled = !encFile || !seedWord || (
     lastEncryptedContent === (encFile ? lastEncryptedContent : null) && lastUsedSeed === seedWord
   );
@@ -129,9 +143,11 @@ export const DecryptTab = () => {
           className="hidden"
           accept=".enc"
           onChange={handleFileInput}
+          capture="environment"
         />
         {encFile ? (
           <div>
+            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-2" />
             <p className="text-green-600 mb-2">
               Archivo seleccionado: {encFile.name}
             </p>
@@ -142,9 +158,12 @@ export const DecryptTab = () => {
             )}
           </div>
         ) : (
-          <p className="text-gray-500">
-            Arrastra y suelta un archivo .enc aquí o haz clic para seleccionar
-          </p>
+          <div className="flex flex-col items-center gap-2">
+            <Upload className="h-12 w-12 text-gray-400" />
+            <p className="text-gray-500">
+              Arrastra y suelta un archivo .enc aquí o haz clic para seleccionar
+            </p>
+          </div>
         )}
       </div>
 
@@ -152,13 +171,24 @@ export const DecryptTab = () => {
         <label htmlFor="decrypt-seed-word" className="text-sm font-medium">
           Palabra Semilla
         </label>
-        <Input
-          id="decrypt-seed-word"
-          type="text"
-          value={seedWord}
-          onChange={(e) => setSeedWord(e.target.value)}
-          placeholder="Introduce la palabra semilla"
-        />
+        <div className="relative">
+          <Input
+            id="decrypt-seed-word"
+            type={showSeedWord ? "text" : "password"}
+            value={seedWord}
+            onChange={(e) => setSeedWord(e.target.value)}
+            placeholder="Introduce la palabra semilla"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-2 top-1/2 -translate-y-1/2"
+            onClick={() => setShowSeedWord(!showSeedWord)}
+          >
+            {showSeedWord ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
+        </div>
       </div>
 
       {decryptedImage && (
@@ -181,7 +211,7 @@ export const DecryptTab = () => {
         </div>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button
           onClick={handleDecrypt}
           disabled={isDecryptDisabled}
@@ -194,10 +224,19 @@ export const DecryptTab = () => {
           onClick={handleDownloadDecrypted}
           disabled={!decryptedImage}
           variant="outline"
-          className="flex gap-2"
+          className="flex-1 flex items-center gap-2"
         >
           <Download className="h-4 w-4" />
           Descargar
+        </Button>
+
+        <Button
+          variant="destructive"
+          onClick={handleClear}
+          className="flex-1"
+        >
+          <X className="h-4 w-4 mr-2" />
+          Limpiar
         </Button>
       </div>
 

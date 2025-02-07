@@ -9,16 +9,16 @@ const Index = () => {
       <h1 className="text-3xl font-bold text-center mb-8">Encriptador de Imágenes</h1>
       
       <Tabs defaultValue="encrypt" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="encrypt">Encriptar</TabsTrigger>
           <TabsTrigger value="decrypt">Desencriptar</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="encrypt">
+        <TabsContent value="encrypt" className="m-0">
           <EncryptTab />
         </TabsContent>
         
-        <TabsContent value="decrypt">
+        <TabsContent value="decrypt" className="m-0">
           <DecryptTab />
         </TabsContent>
       </Tabs>

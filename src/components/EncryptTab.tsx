@@ -60,7 +60,11 @@ export const EncryptTab = () => {
     }
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
-    setFileName(file.name.replace('.enc', '')); // Removemos .enc si existe
+    
+    // Removemos la extensión del archivo original
+    const nameWithoutExtension = file.name.replace(/\.[^/.]+$/, '');
+    setFileName(nameWithoutExtension); // Ya no incluye la extensión original
+    
     setEncryptedData(null);
     setLastEncryptedImage(null);
     setHasDownloaded(false);

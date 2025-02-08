@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -161,40 +160,32 @@ export const DecryptTab = () => {
         try {
           await navigator.share({
             files: [file],
-            title: 'Imagen Desencriptada',
-            text: '¡Comparte esta imagen!',
-            url: window.location.href // Añadimos la URL para ampliar las opciones de compartir
+            title: 'Compartir imagen',
+            text: '¡Te comparto esta imagen!'
           });
-          showMessage("Éxito", "Archivo compartido correctamente");
         } catch (error) {
           if ((error as Error).name === 'AbortError') {
-            // El usuario canceló la operación, no mostramos error
             return;
           }
-          // Si falla el share nativo, intentamos el portapapeles
-          try {
-            const shareData = new ClipboardItem({
-              [blob.type]: blob
-            });
-            await navigator.clipboard.write([shareData]);
-            showMessage("Éxito", "Archivo copiado al portapapeles");
-          } catch (clipError) {
-            // Si también falla el portapapeles, intentamos copiar el texto
-            try {
-              await navigator.clipboard.writeText(decryptedImage);
-              showMessage("Éxito", "Contenido copiado al portapapeles");
-            } catch (textError) {
-              showMessage("Error", "No se pudo copiar al portapapeles");
-            }
-          }
+          showMessage("Error", "Tu navegador no pudo compartir el archivo");
         }
       } else {
-        // Si no hay soporte para compartir, usamos el portapapeles
         try {
-          await navigator.clipboard.writeText(decryptedImage);
-          showMessage("Éxito", "Contenido copiado al portapapeles (el navegador no soporta compartir)");
+          await navigator.share({
+            title: 'Compartir imagen',
+            text: '¡Te comparto esta imagen!',
+            url: window.location.href
+          });
         } catch (error) {
-          showMessage("Error", "No se pudo copiar al portapapeles");
+          if ((error as Error).name === 'AbortError') {
+            return;
+          }
+          try {
+            await navigator.clipboard.writeText(decryptedImage);
+            showMessage("Éxito", "Contenido copiado al portapapeles (tu navegador no soporta compartir)");
+          } catch (clipError) {
+            showMessage("Error", "No se pudo compartir ni copiar el contenido");
+          }
         }
       }
     } catch (error) {
@@ -375,4 +366,3 @@ export const DecryptTab = () => {
     </div>
   );
 };
-

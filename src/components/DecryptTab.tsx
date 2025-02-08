@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useEncrypt } from "@/context/EncryptContext";
+import { ImageUploadArea } from "./encrypt/ImageUploadArea";
 
 export const DecryptTab = () => {
   const { seedWord, setSeedWord, encryptedFile, setEncryptedFile } = useEncrypt();
@@ -98,17 +99,23 @@ export const DecryptTab = () => {
           setFileSizes(prev => prev ? { ...prev, decrypted: decryptedSize } : { encrypted: encFile.size, decrypted: decryptedSize });
           setLastEncryptedContent(encrypted);
           setLastUsedSeed(seedWord);
-          
-          showMessage("Éxito", "Imagen desencriptada correctamente ✨");
         } catch (error) {
           setDecryptedImage("");
-          showMessage("Error", "Palabra semilla incorrecta o archivo corrupto");
+          setShowDialog(true);
+          setDialogMessage({ 
+            title: "Error", 
+            description: "Palabra semilla incorrecta o archivo corrupto" 
+          });
         }
       };
 
       reader.readAsText(encFile);
     } catch (error) {
-      showMessage("Error", "Error al desencriptar la imagen");
+      setShowDialog(true);
+      setDialogMessage({ 
+        title: "Error", 
+        description: "Error al desencriptar la imagen" 
+      });
     }
   };
 
@@ -126,18 +133,20 @@ export const DecryptTab = () => {
         recursive: true
       });
       
-      showMessage("Éxito", "Imagen guardada en Descargas/Downloads 💾");
       setHasDownloaded(true);
       setLastDownloadData({
         seedWord,
         fileName: finalFileName
       });
 
-      // Limpiar el archivo después de la descarga
       handleClear();
     } catch (error) {
       console.error('Error al guardar:', error);
-      showMessage("Error", "No se pudo guardar la imagen en el dispositivo");
+      setShowDialog(true);
+      setDialogMessage({ 
+        title: "Error", 
+        description: "No se pudo guardar la imagen en el dispositivo" 
+      });
     }
   };
 

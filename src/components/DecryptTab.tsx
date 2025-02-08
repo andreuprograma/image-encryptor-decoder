@@ -199,6 +199,29 @@ export const DecryptTab = () => {
     lastDownloadData?.seedWord === seedWord && 
     lastDownloadData?.fileName === fileName);
 
+  const renderLogMessage = () => {
+    if (!encFile && !lastEncryptedContent) return null;
+
+    return (
+      <div className="mt-4 space-y-2 text-sm text-gray-500">
+        {encFile && (
+          <>
+            <p>✓ Archivo cargado: {encFile.name}</p>
+            {fileSizes?.encrypted && (
+              <p>✓ Tamaño archivo encriptado: {(fileSizes.encrypted / 1024).toFixed(2)} KB</p>
+            )}
+          </>
+        )}
+        {decryptedImage && fileSizes?.decrypted && (
+          <p>✓ Archivo desencriptado ({(fileSizes.decrypted / 1024).toFixed(2)} KB)</p>
+        )}
+        {hasDownloaded && (
+          <p>✓ Imagen descargada como: {fileName}</p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6 p-4 border rounded-lg">
       <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
@@ -231,14 +254,7 @@ export const DecryptTab = () => {
         {encFile ? (
           <div>
             <Upload className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-            <p className="text-green-600 mb-2">
-              Archivo seleccionado: {encFile.name}
-            </p>
-            {fileSizes && (
-              <p className="text-sm text-gray-500">
-                Tamaño archivo encriptado: {(fileSizes.encrypted / 1024).toFixed(2)} KB
-              </p>
-            )}
+            {renderLogMessage()}
           </div>
         ) : (
           <div className="flex flex-col items-center gap-4">

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -132,14 +133,13 @@ export const EncryptTab = () => {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       }
+      
       setHasDownloaded(true);
       setLastDownloadData({
         seedWord,
         fileName: finalFileName
       });
       setDownloadedFileName(finalFileName);
-      
-      handleClear();
     } catch (error) {
       console.error('Error al guardar:', error);
     }

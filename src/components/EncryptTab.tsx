@@ -20,26 +20,30 @@ export const EncryptTab = () => {
     previewUrl,
     setPreviewUrl,
     rotation,
-    setRotation 
+    setRotation,
+    encryptedData,
+    setEncryptedData,
+    fileName,
+    setFileName,
+    lastEncryptedImage,
+    setLastEncryptedImage,
+    lastUsedSeed,
+    setLastUsedSeed,
+    hasDownloaded,
+    setHasDownloaded,
+    isEncrypted,
+    setIsEncrypted,
+    downloadedFileName,
+    setDownloadedFileName
   } = useEncrypt();
   
-  const [encryptedData, setEncryptedData] = useState<{
-    data: string;
-    size: number;
-  } | null>(null);
-  const [fileName, setFileName] = useState("");
-  const [lastEncryptedImage, setLastEncryptedImage] = useState<string | null>(null);
-  const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
   const [showDialog, setShowDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState({ title: "", description: "" });
-  const [hasDownloaded, setHasDownloaded] = useState(false);
   const [lastDownloadData, setLastDownloadData] = useState<{
     seedWord: string;
     fileName: string;
   } | null>(null);
   const [showSeedWord, setShowSeedWord] = useState(false);
-  const [isEncrypted, setIsEncrypted] = useState(false);
-  const [downloadedFileName, setDownloadedFileName] = useState("");
 
   useEffect(() => {
     if (imageFile) {
@@ -48,7 +52,7 @@ export const EncryptTab = () => {
       setIsEncrypted(false);
       return () => URL.revokeObjectURL(url);
     }
-  }, [imageFile, setPreviewUrl]);
+  }, [imageFile, setPreviewUrl, setIsEncrypted]);
 
   useEffect(() => {
     setEncryptedData(null);
@@ -57,7 +61,7 @@ export const EncryptTab = () => {
     setLastDownloadData(null);
     setIsEncrypted(false);
     setDownloadedFileName("");
-  }, [seedWord]);
+  }, [seedWord, setEncryptedData, setLastEncryptedImage, setHasDownloaded, setIsEncrypted, setDownloadedFileName]);
 
   const showMessage = (title: string, description: string) => {
     setDialogMessage({ title, description });
@@ -242,3 +246,4 @@ export const EncryptTab = () => {
     </div>
   );
 };
+

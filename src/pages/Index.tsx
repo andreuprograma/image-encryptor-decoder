@@ -2,11 +2,20 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EncryptTab } from "@/components/EncryptTab";
 import { DecryptTab } from "@/components/DecryptTab";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 const Index = () => {
+  const timestamp = format(new Date(), "dd/MM/yyyy HH:mm", { locale: es });
+
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <h1 className="text-3xl font-bold text-center mb-8">Encriptador de Imágenes</h1>
+      <h1 className="text-3xl font-bold text-center mb-8">
+        Encriptador de Imágenes{" "}
+        <span className="text-sm font-normal text-gray-500">
+          (v.{timestamp})
+        </span>
+      </h1>
       
       <Tabs defaultValue="encrypt" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">

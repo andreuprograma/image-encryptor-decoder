@@ -104,14 +104,13 @@ export const DecryptTab = () => {
     if (!decryptedImage) return;
     
     try {
-      // Convertir data URL a Blob
-      const response = await fetch(decryptedImage);
-      const blob = await response.blob();
+      // Convertir la data URL a base64 eliminando el prefijo
+      const base64Data = decryptedImage.split(',')[1];
       
       // Guardar en Downloads
       await Filesystem.writeFile({
         path: `Download/${fileName}`,
-        data: await blob.text(),
+        data: base64Data,
         directory: Directory.ExternalStorage,
         recursive: true
       });
@@ -126,7 +125,8 @@ export const DecryptTab = () => {
       console.error('Error al guardar:', error);
       toast({
         variant: "destructive",
-        description: "Error al guardar la imagen",
+        title: "Error al guardar",
+        description: "No se pudo guardar la imagen en el dispositivo",
       });
     }
   };

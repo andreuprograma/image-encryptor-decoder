@@ -51,11 +51,11 @@ export const ImageUploadArea = ({
       />
       {previewUrl ? (
         <div className="flex flex-col items-center gap-4">
-          <div className="relative w-full max-w-md">
+          <div className="relative w-full max-w-md mx-auto flex justify-center">
             <img
               src={previewUrl}
               alt="Preview"
-              className={`max-h-64 object-contain ${
+              className={`max-h-64 w-auto object-contain mx-auto ${
                 isEncrypted ? 'animate-pixel-effect' : ''
               }`}
               style={{ transform: `rotate(${rotation}deg)` }}

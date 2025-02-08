@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Download, Eye, EyeOff, X, Upload } from "lucide-react";
@@ -34,6 +35,13 @@ export const DecryptTab = () => {
     seedWord: string;
     fileName: string;
   } | null>(null);
+
+  // Efecto para mantener sincronizado el archivo entre el estado local y el contexto
+  useEffect(() => {
+    if (encryptedFile) {
+      handleFileSelect(encryptedFile);
+    }
+  }, [encryptedFile]);
 
   const showMessage = (title: string, description: string) => {
     setDialogMessage({ title, description });
@@ -149,8 +157,8 @@ export const DecryptTab = () => {
 
   const isDecryptDisabled = !encFile || 
     !seedWord || 
-    decryptedImage !== "" || // Desactivar si ya se ha desencriptado
-    (hasDownloaded && lastDownloadData?.seedWord === seedWord); // Desactivar si ya se ha descargado con esta seed
+    decryptedImage !== "" || 
+    (hasDownloaded && lastDownloadData?.seedWord === seedWord);
 
   const isDownloadDisabled = !decryptedImage || 
     (hasDownloaded && 

@@ -28,6 +28,11 @@ export const DecryptTab = () => {
   const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
   const [showDialog, setShowDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState({ title: "", description: "" });
+  const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [lastDownloadData, setLastDownloadData] = useState<{
+    seedWord: string;
+    fileName: string;
+  } | null>(null);
 
   const showMessage = (title: string, description: string) => {
     setDialogMessage({ title, description });
@@ -50,6 +55,8 @@ export const DecryptTab = () => {
     setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
     setDecryptedImage("");
     setLastEncryptedContent(null);
+    setHasDownloaded(false);
+    setLastDownloadData(null);
     showMessage("Éxito", "Archivo .enc cargado correctamente");
   };
 
@@ -114,6 +121,11 @@ export const DecryptTab = () => {
       window.dispatchEvent(new CustomEvent('decryptChange'));
       
       showMessage("Éxito", "Imagen guardada en Descargas/Downloads 💾");
+      setHasDownloaded(true);
+      setLastDownloadData({
+        seedWord,
+        fileName
+      });
     } catch (error) {
       console.error('Error al guardar:', error);
       showMessage("Error", "No se pudo guardar la imagen en el dispositivo");
@@ -128,10 +140,17 @@ export const DecryptTab = () => {
     setFileSizes(null);
     setLastEncryptedContent(null);
     setLastUsedSeed("");
+    setHasDownloaded(false);
+    setLastDownloadData(null);
     showMessage("Éxito", "Campos limpiados correctamente");
   };
 
   const isDecryptDisabled = !encFile || !seedWord;
+
+  const isDownloadDisabled = !decryptedImage || 
+    (hasDownloaded && 
+    lastDownloadData?.seedWord === seedWord && 
+    lastDownloadData?.fileName === fileName);
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
@@ -239,7 +258,7 @@ export const DecryptTab = () => {
         
         <Button
           onClick={handleDownloadDecrypted}
-          disabled={!decryptedImage}
+          disabled={isDownloadDisabled}
           variant="outline"
           className="flex-1 flex items-center gap-2"
         >

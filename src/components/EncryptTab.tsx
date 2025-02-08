@@ -30,6 +30,11 @@ export const EncryptTab = () => {
   const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
   const [showDialog, setShowDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState({ title: "", description: "" });
+  const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [lastDownloadData, setLastDownloadData] = useState<{
+    seedWord: string;
+    fileName: string;
+  } | null>(null);
 
   const showMessage = (title: string, description: string) => {
     setDialogMessage({ title, description });
@@ -56,6 +61,8 @@ export const EncryptTab = () => {
     setFileName(`${file.name}.enc`);
     setEncryptedData(null);
     setLastEncryptedImage(null);
+    setHasDownloaded(false);
+    setLastDownloadData(null);
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,6 +129,11 @@ export const EncryptTab = () => {
         
         showMessage("Éxito", "Archivo descargado correctamente 💾");
       }
+      setHasDownloaded(true);
+      setLastDownloadData({
+        seedWord,
+        fileName
+      });
     } catch (error) {
       console.error('Error al guardar:', error);
       showMessage("Error", "Error al guardar el archivo");
@@ -137,6 +149,8 @@ export const EncryptTab = () => {
     setFileName("");
     setLastEncryptedImage(null);
     setLastUsedSeed("");
+    setHasDownloaded(false);
+    setLastDownloadData(null);
     showMessage("Éxito", "Campos limpiados correctamente");
   };
 
@@ -149,6 +163,11 @@ export const EncryptTab = () => {
       }
     };
   }, [previewUrl]);
+
+  const isDownloadDisabled = !encryptedData || 
+    (hasDownloaded && 
+    lastDownloadData?.seedWord === seedWord && 
+    lastDownloadData?.fileName === fileName);
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
@@ -280,7 +299,7 @@ export const EncryptTab = () => {
         <Button
           variant="outline"
           onClick={handleDownload}
-          disabled={!encryptedData}
+          disabled={isDownloadDisabled}
           className="flex-1"
         >
           Descargar

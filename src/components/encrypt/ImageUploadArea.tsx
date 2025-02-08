@@ -12,6 +12,7 @@ interface ImageUploadAreaProps {
   isEncrypted?: boolean;
   lastAction?: string;
   downloadedFileName?: string;
+  encryptedSize?: number;
 }
 
 export const ImageUploadArea = ({
@@ -23,6 +24,7 @@ export const ImageUploadArea = ({
   isEncrypted = false,
   lastAction = "",
   downloadedFileName = "",
+  encryptedSize = 0,
 }: ImageUploadAreaProps) => {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -51,7 +53,12 @@ export const ImageUploadArea = ({
           </>
         )}
         {isEncrypted && (
-          <p>✓ Imagen encriptada</p>
+          <>
+            <p>✓ Imagen encriptada</p>
+            {encryptedSize > 0 && (
+              <p>✓ Tamaño encriptado: {(encryptedSize / 1024).toFixed(2)} KB</p>
+            )}
+          </>
         )}
         {downloadedFileName && (
           <p>✓ Imagen descargada como: {downloadedFileName}</p>

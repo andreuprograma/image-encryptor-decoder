@@ -151,30 +151,34 @@ export const EncryptTab = () => {
   const handleShare = async () => {
     if (!encryptedData) return;
 
-    const blob = new Blob([encryptedData.data], { type: 'application/octet-stream' });
-    const file = new File([blob], `${fileName}.enc`, { type: 'application/octet-stream' });
+    try {
+      const finalFileName = `${fileName}.enc`;
+      const blob = new Blob([encryptedData.data], { type: 'application/octet-stream' });
+      const file = new File([blob], finalFileName, { type: 'application/octet-stream' });
 
-    if (navigator.share && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({
-          files: [file],
-          title: 'Imagen Encriptada',
-          text: '¡Comparte esta imagen encriptada!'
-        });
-        showMessage("Éxito", "Archivo compartido correctamente");
-      } catch (error) {
-        if ((error as Error).name !== 'AbortError') {
-          showMessage("Error", "No se pudo compartir el archivo");
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Imagen Encriptada',
+            text: '¡Comparte esta imagen encriptada!'
+          });
+          showMessage("Éxito", "Archivo compartido correctamente");
+        } catch (error) {
+          if ((error as Error).name !== 'AbortError') {
+            showMessage("Error", "No se pudo compartir el archivo");
+          }
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(encryptedData.data);
+          showMessage("Éxito", "Contenido copiado al portapapeles");
+        } catch (error) {
+          showMessage("Error", "No se pudo copiar al portapapeles");
         }
       }
-    } else {
-      // Fallback to clipboard
-      try {
-        await navigator.clipboard.writeText(encryptedData.data);
-        showMessage("Éxito", "Contenido copiado al portapapeles");
-      } catch (error) {
-        showMessage("Error", "No se pudo copiar al portapapeles");
-      }
+    } catch (error) {
+      showMessage("Error", "No se pudo compartir el archivo");
     }
   };
 

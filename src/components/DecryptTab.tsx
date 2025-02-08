@@ -157,7 +157,7 @@ export const DecryptTab = () => {
       const blob = await response.blob();
       const file = new File([blob], fileName, { type: blob.type });
 
-      if (navigator.share && navigator.canShare({ files: [file] })) {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
             files: [file],

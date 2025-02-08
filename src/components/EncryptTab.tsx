@@ -164,8 +164,8 @@ export const EncryptTab = () => {
         rotation={rotation}
         imageFile={imageFile}
         onImageSelect={handleImageSelect}
-        onRotate={(direction) => {
-          setRotation(prev => direction === "right" ? prev + 90 : prev - 90);
+        onRotate={(direction: "left" | "right") => {
+          setRotation(direction === "right" ? rotation + 90 : rotation - 90);
         }}
       />
 

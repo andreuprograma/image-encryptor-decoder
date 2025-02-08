@@ -21,8 +21,8 @@ export default {
 		extend: {
 			keyframes: {
 				"blur-pulse": {
-					"0%, 100%": { filter: "blur(0px)" },
-					"50%": { filter: "blur(4px)" }
+					"0%": { filter: "blur(0px)" },
+					"100%": { filter: "blur(4px)" }
 				},
 				"accordion-down": {
 					from: {
@@ -42,7 +42,7 @@ export default {
 				}
 			},
 			animation: {
-				"blur-pulse": "blur-pulse 20000s ease-in-out infinite",
+				"blur-pulse": "blur-pulse 2s ease-in forwards",
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
 			},

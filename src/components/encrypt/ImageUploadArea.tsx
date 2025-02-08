@@ -52,17 +52,22 @@ export const ImageUploadArea = ({
       {previewUrl ? (
         <div className="flex flex-col items-center gap-4">
           <div className="relative w-full max-w-md">
-            <div className={`relative ${isEncrypted ? 'after:content-[""] after:absolute after:inset-0 after:bg-black after:opacity-30 after:animate-pulse' : ''}`}>
+            <div className="relative">
               <img
                 src={previewUrl}
                 alt="Preview"
                 className={`max-h-64 object-contain transition-all duration-300 mx-auto ${
-                  isEncrypted ? 'blur-sm scale-[1.02] brightness-90' : ''
+                  isEncrypted ? [
+                    'blur-[2px]',
+                    'animate-[pixelate_2s_ease-in-out_infinite]',
+                    'scale-[1.02]',
+                    'brightness-90'
+                  ].join(' ') : ''
                 }`}
                 style={{ transform: `rotate(${rotation}deg)` }}
               />
               {isEncrypted && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shine_1.5s_ease-in-out_infinite] -skew-x-12" />
+                <div className="absolute inset-0 bg-black/30 animate-pulse" />
               )}
             </div>
             <div className="absolute top-0 left-0 right-0 flex justify-center gap-2 -mt-8">

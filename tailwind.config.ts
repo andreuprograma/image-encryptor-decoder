@@ -28,9 +28,9 @@ export default {
 					from: { height: "var(--radix-accordion-content-height)" },
 					to: { height: "0" },
 				},
-				shine: {
-					'0%': { transform: 'translateX(-100%) skewX(-12deg)' },
-					'100%': { transform: 'translateX(200%) skewX(-12deg)' }
+				pixelate: {
+					'0%, 100%': { filter: 'blur(2px)' },
+					'50%': { filter: 'blur(4px)' }
 				}
 			},
 			animation: {

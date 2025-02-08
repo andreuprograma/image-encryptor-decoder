@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -84,17 +85,17 @@ export default {
 				}
 			},
 			animation: {
-				"image-fade": "image-fade 2s ease-in-out infinite",
-				"image-fade-1": "image-fade-1 2s ease-in-out infinite",
-				"image-fade-2": "image-fade-2 2s ease-in-out infinite",
-				"image-fade-3": "image-fade-3 2s ease-in-out infinite",
-				"image-fade-4": "image-fade-4 2s ease-in-out infinite",
-				"image-fade-5": "image-fade-5 2s ease-in-out infinite",
-				"image-fade-6": "image-fade-6 2s ease-in-out infinite",
-				"image-fade-7": "image-fade-7 2s ease-in-out infinite",
-				"image-fade-8": "image-fade-8 2s ease-in-out infinite",
-				"image-fade-9": "image-fade-9 2s ease-in-out infinite",
-				"image-fade-10": "image-fade-10 2s ease-in-out infinite",
+				"image-fade": "image-fade 6s ease-in-out infinite",
+				"image-fade-1": "image-fade-1 6s ease-in-out infinite",
+				"image-fade-2": "image-fade-2 6s ease-in-out infinite",
+				"image-fade-3": "image-fade-3 6s ease-in-out infinite",
+				"image-fade-4": "image-fade-4 6s ease-in-out infinite",
+				"image-fade-5": "image-fade-5 6s ease-in-out infinite",
+				"image-fade-6": "image-fade-6 6s ease-in-out infinite",
+				"image-fade-7": "image-fade-7 6s ease-in-out infinite",
+				"image-fade-8": "image-fade-8 6s ease-in-out infinite",
+				"image-fade-9": "image-fade-9 6s ease-in-out infinite",
+				"image-fade-10": "image-fade-10 6s ease-in-out infinite",
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
 			},

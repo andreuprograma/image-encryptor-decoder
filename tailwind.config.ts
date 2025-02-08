@@ -85,17 +85,17 @@ export default {
 				}
 			},
 			animation: {
-				"image-fade": "image-fade 18s ease-in-out infinite",
-				"image-fade-1": "image-fade-1 18s ease-in-out infinite",
-				"image-fade-2": "image-fade-2 18s ease-in-out infinite",
-				"image-fade-3": "image-fade-3 18s ease-in-out infinite",
-				"image-fade-4": "image-fade-4 18s ease-in-out infinite",
-				"image-fade-5": "image-fade-5 18s ease-in-out infinite",
-				"image-fade-6": "image-fade-6 18s ease-in-out infinite",
-				"image-fade-7": "image-fade-7 18s ease-in-out infinite",
-				"image-fade-8": "image-fade-8 18s ease-in-out infinite",
-				"image-fade-9": "image-fade-9 18s ease-in-out infinite",
-				"image-fade-10": "image-fade-10 18s ease-in-out infinite",
+				"image-fade": "image-fade 54s ease-in-out infinite",
+				"image-fade-1": "image-fade-1 54s ease-in-out infinite",
+				"image-fade-2": "image-fade-2 54s ease-in-out infinite",
+				"image-fade-3": "image-fade-3 54s ease-in-out infinite",
+				"image-fade-4": "image-fade-4 54s ease-in-out infinite",
+				"image-fade-5": "image-fade-5 54s ease-in-out infinite",
+				"image-fade-6": "image-fade-6 54s ease-in-out infinite",
+				"image-fade-7": "image-fade-7 54s ease-in-out infinite",
+				"image-fade-8": "image-fade-8 54s ease-in-out infinite",
+				"image-fade-9": "image-fade-9 54s ease-in-out infinite",
+				"image-fade-10": "image-fade-10 54s ease-in-out infinite",
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
 			},
@@ -153,3 +153,4 @@ export default {
 	},
 	plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+

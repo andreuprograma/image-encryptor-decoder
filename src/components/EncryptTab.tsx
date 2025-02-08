@@ -39,7 +39,6 @@ export const EncryptTab = () => {
   } | null>(null);
   const [showSeedWord, setShowSeedWord] = useState(false);
 
-  // Efecto para refrescar la vista previa cuando el componente se monta
   useEffect(() => {
     if (imageFile) {
       const url = URL.createObjectURL(imageFile);
@@ -61,9 +60,9 @@ export const EncryptTab = () => {
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     
-    // Removemos la extensión del archivo original
-    const nameWithoutExtension = file.name.replace(/\.[^/.]+$/, '');
-    setFileName(nameWithoutExtension); // Ya no incluye la extensión original
+    // Extraemos el nombre base del archivo sin ninguna extensión
+    const baseFileName = file.name.split('.')[0];
+    setFileName(baseFileName);
     
     setEncryptedData(null);
     setLastEncryptedImage(null);
@@ -101,7 +100,7 @@ export const EncryptTab = () => {
     if (!encryptedData) return;
     
     try {
-      const finalFileName = `${fileName.replace('.enc', '')}.enc`; // Aseguramos que tenga .enc
+      const finalFileName = `${fileName}.enc`;
       
       if (Capacitor.isNativePlatform()) {
         await Filesystem.writeFile({
@@ -166,7 +165,7 @@ export const EncryptTab = () => {
   const isDownloadDisabled = !encryptedData || 
     (hasDownloaded && 
     lastDownloadData?.seedWord === seedWord && 
-    lastDownloadData?.fileName === `${fileName.replace('.enc', '')}.enc`);
+    lastDownloadData?.fileName === `${fileName}.enc`);
 
   const isClearDisabled = !imageFile && !seedWord && !encryptedData && !fileName;
 
@@ -233,3 +232,4 @@ export const EncryptTab = () => {
     </div>
   );
 };
+

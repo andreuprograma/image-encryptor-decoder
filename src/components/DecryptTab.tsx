@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -36,7 +35,6 @@ export const DecryptTab = () => {
     fileName: string;
   } | null>(null);
 
-  // Efecto para mantener sincronizado el archivo entre el estado local y el contexto
   useEffect(() => {
     if (encryptedFile) {
       handleFileSelect(encryptedFile);
@@ -61,7 +59,8 @@ export const DecryptTab = () => {
   const handleFileSelect = (file: File) => {
     setEncFile(file);
     setEncryptedFile(file);
-    setFileName(`decrypted_${file.name.replace('.enc', '')}`);
+    const baseFileName = file.name.replace('.enc', '');
+    setFileName(baseFileName);
     setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
     setDecryptedImage("");
     setLastEncryptedContent(null);
@@ -100,8 +99,6 @@ export const DecryptTab = () => {
           setLastEncryptedContent(encrypted);
           setLastUsedSeed(seedWord);
           
-          window.dispatchEvent(new CustomEvent('decryptChange'));
-          
           showMessage("Éxito", "Imagen desencriptada correctamente ✨");
         } catch (error) {
           setDecryptedImage("");
@@ -119,22 +116,21 @@ export const DecryptTab = () => {
     if (!decryptedImage) return;
     
     try {
+      const finalFileName = fileName;
       const base64Data = decryptedImage.split(',')[1];
       
       await Filesystem.writeFile({
-        path: `Download/${fileName}`,
+        path: `Download/${finalFileName}`,
         data: base64Data,
         directory: Directory.ExternalStorage,
         recursive: true
       });
       
-      window.dispatchEvent(new CustomEvent('decryptChange'));
-      
       showMessage("Éxito", "Imagen guardada en Descargas/Downloads 💾");
       setHasDownloaded(true);
       setLastDownloadData({
         seedWord,
-        fileName
+        fileName: finalFileName
       });
     } catch (error) {
       console.error('Error al guardar:', error);

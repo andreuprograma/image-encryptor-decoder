@@ -25,56 +25,14 @@ export default {
 					"50%": { opacity: "0.2" },
 					"100%": { opacity: "1" }
 				},
-				"image-fade-1": {
-					"0%": { opacity: "1" },
-					"50%": { opacity: "0.1" },
-					"100%": { opacity: "1" }
-				},
-				"image-fade-2": {
-					"0%": { opacity: "1" },
-					"50%": { opacity: "0.15" },
-					"100%": { opacity: "1" }
-				},
-				"image-fade-3": {
-					"0%": { opacity: "1" },
-					"50%": { opacity: "0.2" },
-					"100%": { opacity: "1" }
-				},
-				"image-fade-4": {
-					"0%": { opacity: "1" },
-					"50%": { opacity: "0.25" },
-					"100%": { opacity: "1" }
-				},
-				"image-fade-5": {
-					"0%": { opacity: "1" },
-					"50%": { opacity: "0.3" },
-					"100%": { opacity: "1" }
-				},
-				"image-fade-6": {
-					"0%": { opacity: "1" },
-					"50%": { opacity: "0.35" },
-					"100%": { opacity: "1" }
-				},
-				"image-fade-7": {
-					"0%": { opacity: "1" },
-					"50%": { opacity: "0.4" },
-					"100%": { opacity: "1" }
-				},
-				"image-fade-8": {
-					"0%": { opacity: "1" },
-					"50%": { opacity: "0.45" },
-					"100%": { opacity: "1" }
-				},
-				"image-fade-9": {
-					"0%": { opacity: "1" },
-					"50%": { opacity: "0.5" },
-					"100%": { opacity: "1" }
-				},
-				"image-fade-10": {
-					"0%": { opacity: "1" },
-					"50%": { opacity: "0.55" },
-					"100%": { opacity: "1" }
-				},
+				// Generar 100 variaciones de image-fade con opacidades progresivas
+				...Array.from({ length: 100 }, (_, i) => ({
+					[`image-fade-${i + 1}`]: {
+						"0%": { opacity: "1" },
+						"50%": { opacity: `${0.01 + i * 0.005}` },
+						"100%": { opacity: "1" }
+					}
+				})).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
 				"accordion-down": {
 					from: { height: '0' },
 					to: { height: 'var(--radix-accordion-content-height)' }
@@ -86,16 +44,10 @@ export default {
 			},
 			animation: {
 				"image-fade": "image-fade 54s ease-in-out infinite",
-				"image-fade-1": "image-fade-1 54s ease-in-out infinite",
-				"image-fade-2": "image-fade-2 54s ease-in-out infinite",
-				"image-fade-3": "image-fade-3 54s ease-in-out infinite",
-				"image-fade-4": "image-fade-4 54s ease-in-out infinite",
-				"image-fade-5": "image-fade-5 54s ease-in-out infinite",
-				"image-fade-6": "image-fade-6 54s ease-in-out infinite",
-				"image-fade-7": "image-fade-7 54s ease-in-out infinite",
-				"image-fade-8": "image-fade-8 54s ease-in-out infinite",
-				"image-fade-9": "image-fade-9 54s ease-in-out infinite",
-				"image-fade-10": "image-fade-10 54s ease-in-out infinite",
+				// Generar 100 variaciones de animaciones
+				...Array.from({ length: 100 }, (_, i) => ({
+					[`image-fade-${i + 1}`]: `image-fade-${i + 1} 54s ease-in-out infinite`
+				})).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
 			},
@@ -153,4 +105,3 @@ export default {
 	},
 	plugins: [require("tailwindcss-animate")],
 } satisfies Config;
-

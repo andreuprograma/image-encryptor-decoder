@@ -209,6 +209,7 @@ export const EncryptTab = () => {
         <FileNameInput
           fileName={fileName}
           onChange={setFileName}
+          encryptedSize={encryptedData.size}
         />
       )}
 

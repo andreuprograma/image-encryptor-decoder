@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -68,7 +67,6 @@ export const DecryptTab = () => {
     setLastEncryptedContent(null);
     setHasDownloaded(false);
     setLastDownloadData(null);
-    showMessage("Éxito", "Archivo .enc cargado correctamente");
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {

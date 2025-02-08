@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -60,7 +59,7 @@ export const EncryptTab = () => {
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     
-    // Extraemos el nombre base del archivo sin ninguna extensión
+    // Extraemos el nombre base del archivo sin extensión
     const baseFileName = file.name.split('.')[0];
     setFileName(baseFileName);
     
@@ -232,4 +231,3 @@ export const EncryptTab = () => {
     </div>
   );
 };
-

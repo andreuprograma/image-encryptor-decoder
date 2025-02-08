@@ -80,9 +80,14 @@ export const ImageUploadArea = ({
             </div>
           </div>
           {imageFile && (
-            <p className="text-sm text-gray-500">
-              Tamaño original: {(imageFile.size / 1024).toFixed(2)} KB
-            </p>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500">
+                Archivo: {imageFile.name}
+              </p>
+              <p className="text-sm text-gray-500">
+                Tamaño original: {(imageFile.size / 1024).toFixed(2)} KB
+              </p>
+            </div>
           )}
         </div>
       ) : (

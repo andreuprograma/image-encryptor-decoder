@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -37,6 +38,15 @@ export const EncryptTab = () => {
     fileName: string;
   } | null>(null);
   const [showSeedWord, setShowSeedWord] = useState(false);
+
+  // Efecto para refrescar la vista previa cuando el componente se monta
+  useEffect(() => {
+    if (imageFile) {
+      const url = URL.createObjectURL(imageFile);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [imageFile, setPreviewUrl]);
 
   const showMessage = (title: string, description: string) => {
     setDialogMessage({ title, description });

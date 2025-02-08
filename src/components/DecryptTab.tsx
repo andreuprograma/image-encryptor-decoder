@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,16 @@ import { toast } from "@/hooks/use-toast";
 import { Download, Eye, EyeOff, X, Upload } from "lucide-react";
 import CryptoJS from "crypto-js";
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const DecryptTab = () => {
   const [encFile, setEncFile] = useState<File | null>(null);
@@ -18,6 +29,8 @@ export const DecryptTab = () => {
   } | null>(null);
   const [lastEncryptedContent, setLastEncryptedContent] = useState<string | null>(null);
   const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -25,10 +38,8 @@ export const DecryptTab = () => {
     if (file && file.name.endsWith('.enc')) {
       handleFileSelect(file);
     } else {
-      toast({
-        variant: "destructive",
-        description: "Por favor, selecciona un archivo .enc válido",
-      });
+      setErrorMessage("Por favor, selecciona un archivo .enc válido");
+      setShowErrorDialog(true);
     }
   };
 
@@ -48,10 +59,8 @@ export const DecryptTab = () => {
     if (file && file.name.endsWith('.enc')) {
       handleFileSelect(file);
     } else if (file) {
-      toast({
-        variant: "destructive",
-        description: "Por favor, selecciona un archivo .enc válido",
-      });
+      setErrorMessage("Por favor, selecciona un archivo .enc válido");
+      setShowErrorDialog(true);
     }
   };
 
@@ -76,7 +85,6 @@ export const DecryptTab = () => {
           setLastEncryptedContent(encrypted);
           setLastUsedSeed(seedWord);
           
-          // Dispatch event for version tracking
           window.dispatchEvent(new CustomEvent('decryptChange'));
           
           toast({
@@ -84,19 +92,15 @@ export const DecryptTab = () => {
           });
         } catch (error) {
           setDecryptedImage("");
-          toast({
-            variant: "destructive",
-            description: "Palabra semilla incorrecta o archivo corrupto",
-          });
+          setErrorMessage("Palabra semilla incorrecta o archivo corrupto");
+          setShowErrorDialog(true);
         }
       };
 
       reader.readAsText(encFile);
     } catch (error) {
-      toast({
-        variant: "destructive",
-        description: "Error al desencriptar la imagen",
-      });
+      setErrorMessage("Error al desencriptar la imagen");
+      setShowErrorDialog(true);
     }
   };
 
@@ -104,10 +108,8 @@ export const DecryptTab = () => {
     if (!decryptedImage) return;
     
     try {
-      // Convertir la data URL a base64 eliminando el prefijo
       const base64Data = decryptedImage.split(',')[1];
       
-      // Guardar en Downloads
       await Filesystem.writeFile({
         path: `Download/${fileName}`,
         data: base64Data,
@@ -115,7 +117,6 @@ export const DecryptTab = () => {
         recursive: true
       });
       
-      // Dispatch event for version tracking
       window.dispatchEvent(new CustomEvent('decryptChange'));
       
       toast({
@@ -123,11 +124,8 @@ export const DecryptTab = () => {
       });
     } catch (error) {
       console.error('Error al guardar:', error);
-      toast({
-        variant: "destructive",
-        title: "Error al guardar",
-        description: "No se pudo guardar la imagen en el dispositivo",
-      });
+      setErrorMessage("No se pudo guardar la imagen en el dispositivo");
+      setShowErrorDialog(true);
     }
   };
 
@@ -150,6 +148,20 @@ export const DecryptTab = () => {
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
+      <AlertDialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Error</AlertDialogTitle>
+            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowErrorDialog(false)}>
+              Entendido
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleFileDrop}
@@ -271,3 +283,4 @@ export const DecryptTab = () => {
     </div>
   );
 };
+

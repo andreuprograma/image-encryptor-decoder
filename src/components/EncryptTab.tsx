@@ -38,11 +38,13 @@ export const EncryptTab = () => {
     fileName: string;
   } | null>(null);
   const [showSeedWord, setShowSeedWord] = useState(false);
+  const [isEncrypted, setIsEncrypted] = useState(false);
 
   useEffect(() => {
     if (imageFile) {
       const url = URL.createObjectURL(imageFile);
       setPreviewUrl(url);
+      setIsEncrypted(false);
       return () => URL.revokeObjectURL(url);
     }
   }, [imageFile, setPreviewUrl]);
@@ -60,7 +62,6 @@ export const EncryptTab = () => {
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     
-    // Extraemos el nombre base del archivo sin extensión
     const baseFileName = file.name.split('.')[0];
     setFileName(baseFileName);
     
@@ -68,6 +69,7 @@ export const EncryptTab = () => {
     setLastEncryptedImage(null);
     setHasDownloaded(false);
     setLastDownloadData(null);
+    setIsEncrypted(false);
   };
 
   const handleEncrypt = async () => {
@@ -86,8 +88,7 @@ export const EncryptTab = () => {
         });
         setLastEncryptedImage(base64);
         setLastUsedSeed(seedWord);
-
-        showMessage("Éxito", "Imagen encriptada correctamente ✨");
+        setIsEncrypted(true);
       };
 
       reader.readAsDataURL(imageFile);
@@ -131,7 +132,6 @@ export const EncryptTab = () => {
         fileName: finalFileName
       });
       
-      // Limpiar el archivo después de la descarga
       handleClear();
     } catch (error) {
       console.error('Error al guardar:', error);
@@ -150,6 +150,7 @@ export const EncryptTab = () => {
     setLastUsedSeed("");
     setHasDownloaded(false);
     setLastDownloadData(null);
+    setIsEncrypted(false);
   };
 
   useEffect(() => {
@@ -189,6 +190,7 @@ export const EncryptTab = () => {
         onRotate={(direction: "left" | "right") => {
           setRotation(direction === "right" ? rotation + 90 : rotation - 90);
         }}
+        isEncrypted={isEncrypted}
       />
 
       <SeedWordInput

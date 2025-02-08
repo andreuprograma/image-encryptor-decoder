@@ -9,6 +9,7 @@ interface ImageUploadAreaProps {
   imageFile: File | null;
   onImageSelect: (file: File) => void;
   onRotate: (direction: "left" | "right") => void;
+  isEncrypted?: boolean;
 }
 
 export const ImageUploadArea = ({
@@ -17,6 +18,7 @@ export const ImageUploadArea = ({
   imageFile,
   onImageSelect,
   onRotate,
+  isEncrypted = false,
 }: ImageUploadAreaProps) => {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -53,7 +55,9 @@ export const ImageUploadArea = ({
             <img
               src={previewUrl}
               alt="Preview"
-              className="max-h-64 object-contain transition-transform duration-300 mx-auto"
+              className={`max-h-64 object-contain transition-transform duration-300 mx-auto ${
+                isEncrypted ? "animate-blur-pulse" : ""
+              }`}
               style={{ transform: `rotate(${rotation}deg)` }}
             />
             <div className="absolute top-0 left-0 right-0 flex justify-center gap-2 -mt-8">

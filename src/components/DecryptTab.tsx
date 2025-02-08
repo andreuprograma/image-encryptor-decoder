@@ -13,10 +13,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useEncrypt } from "@/context/EncryptContext";
 
 export const DecryptTab = () => {
+  const { seedWord, setSeedWord, encryptedFile, setEncryptedFile } = useEncrypt();
   const [encFile, setEncFile] = useState<File | null>(null);
-  const [seedWord, setSeedWord] = useState("");
   const [showSeedWord, setShowSeedWord] = useState(false);
   const [decryptedImage, setDecryptedImage] = useState<string>("");
   const [fileName, setFileName] = useState("");
@@ -51,6 +52,7 @@ export const DecryptTab = () => {
 
   const handleFileSelect = (file: File) => {
     setEncFile(file);
+    setEncryptedFile(file);
     setFileName(`decrypted_${file.name.replace('.enc', '')}`);
     setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
     setDecryptedImage("");

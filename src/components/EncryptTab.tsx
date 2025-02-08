@@ -16,10 +16,8 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export const EncryptTab = () => {
-  const [image, setImage] = useState<File | null>(null);
+  const { seedWord, setSeedWord, imageFile, setImageFile } = useEncrypt();
   const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [seedWord, setSeedWord] = useState("");
-  const [showSeedWord, setShowSeedWord] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [encryptedData, setEncryptedData] = useState<{
     data: string;
@@ -35,6 +33,7 @@ export const EncryptTab = () => {
     seedWord: string;
     fileName: string;
   } | null>(null);
+  const [showSeedWord, setShowSeedWord] = useState(false);
 
   const showMessage = (title: string, description: string) => {
     setDialogMessage({ title, description });
@@ -52,7 +51,7 @@ export const EncryptTab = () => {
   };
 
   const handleImageSelect = (file: File) => {
-    setImage(file);
+    setImageFile(file);
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
@@ -77,7 +76,7 @@ export const EncryptTab = () => {
   };
 
   const handleEncrypt = async () => {
-    if (!image || !seedWord) return;
+    if (!imageFile || !seedWord) return;
 
     try {
       const reader = new FileReader();
@@ -96,7 +95,7 @@ export const EncryptTab = () => {
         showMessage("Éxito", "Imagen encriptada correctamente ✨");
       };
 
-      reader.readAsDataURL(image);
+      reader.readAsDataURL(imageFile);
     } catch (error) {
       showMessage("Error", "Error al encriptar la imagen");
     }
@@ -141,7 +140,7 @@ export const EncryptTab = () => {
   };
 
   const handleClear = () => {
-    setImage(null);
+    setImageFile(null);
     setPreviewUrl("");
     setSeedWord("");
     setRotation(0);
@@ -154,7 +153,7 @@ export const EncryptTab = () => {
     showMessage("Éxito", "Campos limpiados correctamente");
   };
 
-  const isEncryptDisabled = !image || !seedWord;
+  const isEncryptDisabled = !imageFile || !seedWord;
 
   useEffect(() => {
     return () => {
@@ -230,9 +229,9 @@ export const EncryptTab = () => {
                 </Button>
               </div>
             </div>
-            {image && (
+            {imageFile && (
               <p className="text-sm text-gray-500">
-                Tamaño original: {(image.size / 1024).toFixed(2)} KB
+                Tamaño original: {(imageFile.size / 1024).toFixed(2)} KB
               </p>
             )}
           </div>

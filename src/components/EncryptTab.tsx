@@ -12,9 +12,17 @@ import { FileNameInput } from "./encrypt/FileNameInput";
 import { NotificationDialog } from "./encrypt/NotificationDialog";
 
 export const EncryptTab = () => {
-  const { seedWord, setSeedWord, imageFile, setImageFile } = useEncrypt();
-  const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [rotation, setRotation] = useState(0);
+  const { 
+    seedWord, 
+    setSeedWord, 
+    imageFile, 
+    setImageFile,
+    previewUrl,
+    setPreviewUrl,
+    rotation,
+    setRotation 
+  } = useEncrypt();
+  
   const [encryptedData, setEncryptedData] = useState<{
     data: string;
     size: number;
@@ -48,10 +56,6 @@ export const EncryptTab = () => {
     setLastEncryptedImage(null);
     setHasDownloaded(false);
     setLastDownloadData(null);
-  };
-
-  const rotate = (direction: "left" | "right") => {
-    setRotation(prev => direction === "right" ? prev + 90 : prev - 90);
   };
 
   const handleEncrypt = async () => {
@@ -160,7 +164,9 @@ export const EncryptTab = () => {
         rotation={rotation}
         imageFile={imageFile}
         onImageSelect={handleImageSelect}
-        onRotate={rotate}
+        onRotate={(direction) => {
+          setRotation(prev => direction === "right" ? prev + 90 : prev - 90);
+        }}
       />
 
       <SeedWordInput

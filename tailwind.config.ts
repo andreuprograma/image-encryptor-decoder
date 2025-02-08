@@ -22,7 +22,8 @@ export default {
       keyframes: {
         "pixel-effect": {
           "0%": { filter: "blur(0px)" },
-          "50%": { filter: "blur(10px)" },
+          "40%": { filter: "blur(10px)" },
+          "80%": { filter: "blur(0px)" },
           "100%": { filter: "blur(0px)" }
         },
         "accordion-down": {
@@ -35,7 +36,7 @@ export default {
         }
       },
       animation: {
-        "pixel-effect": "pixel-effect 6s ease-in-out infinite",
+        "pixel-effect": "pixel-effect 8s ease-in-out infinite",
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out'
       },

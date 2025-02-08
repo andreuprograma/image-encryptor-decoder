@@ -152,6 +152,7 @@ export const DecryptTab = () => {
     if (!decryptedImage) return;
 
     try {
+      // Intento 1: Compartir como archivo
       const response = await fetch(decryptedImage);
       const blob = await response.blob();
       const file = new File([blob], fileName, { type: blob.type });
@@ -163,33 +164,32 @@ export const DecryptTab = () => {
             title: 'Compartir imagen',
             text: '¡Te comparto esta imagen!'
           });
+          return;
         } catch (error) {
-          if ((error as Error).name === 'AbortError') {
-            return;
-          }
-          showMessage("Error", "Tu navegador no pudo compartir el archivo");
-        }
-      } else {
-        try {
-          await navigator.share({
-            title: 'Compartir imagen',
-            text: '¡Te comparto esta imagen!',
-            url: window.location.href
-          });
-        } catch (error) {
-          if ((error as Error).name === 'AbortError') {
-            return;
-          }
-          try {
-            await navigator.clipboard.writeText(decryptedImage);
-            showMessage("Éxito", "Contenido copiado al portapapeles (tu navegador no soporta compartir)");
-          } catch (clipError) {
-            showMessage("Error", "No se pudo compartir ni copiar el contenido");
-          }
+          if ((error as Error).name === 'AbortError') return;
+          console.log('No se pudo compartir como archivo, intentando siguiente método...');
         }
       }
+
+      // Intento 2: Compartir solo texto y URL
+      try {
+        await navigator.share({
+          title: 'Compartir imagen',
+          text: '¡Te comparto esta imagen!',
+          url: window.location.href
+        });
+        return;
+      } catch (error) {
+        if ((error as Error).name === 'AbortError') return;
+        console.log('No se pudo compartir como URL, intentando copiar al portapapeles...');
+      }
+
+      // Intento 3: Copiar al portapapeles
+      await navigator.clipboard.writeText(decryptedImage);
+      showMessage("Éxito", "Contenido copiado al portapapeles (tu navegador no soporta compartir)");
+
     } catch (error) {
-      showMessage("Error", "No se pudo compartir la imagen");
+      showMessage("Error", "No se pudo compartir la imagen ni copiar al portapapeles");
     }
   };
 

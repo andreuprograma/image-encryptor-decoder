@@ -156,6 +156,7 @@ export const EncryptTab = () => {
       const blob = new Blob([encryptedData.data], { type: 'application/octet-stream' });
       const file = new File([blob], finalFileName, { type: 'application/octet-stream' });
 
+      // Intento 1: Compartir como archivo
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -163,33 +164,32 @@ export const EncryptTab = () => {
             title: 'Compartir imagen encriptada',
             text: '¡Te comparto esta imagen encriptada!'
           });
+          return;
         } catch (error) {
-          if ((error as Error).name === 'AbortError') {
-            return;
-          }
-          showMessage("Error", "Tu navegador no pudo compartir el archivo");
-        }
-      } else {
-        try {
-          await navigator.share({
-            title: 'Compartir imagen encriptada',
-            text: '¡Te comparto esta imagen encriptada!',
-            url: window.location.href
-          });
-        } catch (error) {
-          if ((error as Error).name === 'AbortError') {
-            return;
-          }
-          try {
-            await navigator.clipboard.writeText(encryptedData.data);
-            showMessage("Éxito", "Contenido copiado al portapapeles (tu navegador no soporta compartir)");
-          } catch (clipError) {
-            showMessage("Error", "No se pudo compartir ni copiar el contenido");
-          }
+          if ((error as Error).name === 'AbortError') return;
+          console.log('No se pudo compartir como archivo, intentando siguiente método...');
         }
       }
+
+      // Intento 2: Compartir solo texto y URL
+      try {
+        await navigator.share({
+          title: 'Compartir imagen encriptada',
+          text: '¡Te comparto esta imagen encriptada!',
+          url: window.location.href
+        });
+        return;
+      } catch (error) {
+        if ((error as Error).name === 'AbortError') return;
+        console.log('No se pudo compartir como URL, intentando copiar al portapapeles...');
+      }
+
+      // Intento 3: Copiar al portapapeles
+      await navigator.clipboard.writeText(encryptedData.data);
+      showMessage("Éxito", "Contenido copiado al portapapeles (tu navegador no soporta compartir)");
+
     } catch (error) {
-      showMessage("Error", "No se pudo compartir el archivo");
+      showMessage("Error", "No se pudo compartir el archivo ni copiar al portapapeles");
     }
   };
 

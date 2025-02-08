@@ -147,7 +147,10 @@ export const DecryptTab = () => {
     showMessage("Éxito", "Campos limpiados correctamente");
   };
 
-  const isDecryptDisabled = !encFile || !seedWord;
+  const isDecryptDisabled = !encFile || 
+    !seedWord || 
+    decryptedImage !== "" || // Desactivar si ya se ha desencriptado
+    (hasDownloaded && lastDownloadData?.seedWord === seedWord); // Desactivar si ya se ha descargado con esta seed
 
   const isDownloadDisabled = !decryptedImage || 
     (hasDownloaded && 

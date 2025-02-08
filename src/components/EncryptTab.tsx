@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -144,7 +143,11 @@ export const EncryptTab = () => {
     };
   }, [previewUrl]);
 
-  const isEncryptDisabled = !imageFile || !seedWord;
+  const isEncryptDisabled = !imageFile || 
+    !seedWord || 
+    encryptedData !== null || // Desactivar si ya se ha encriptado
+    (hasDownloaded && lastDownloadData?.seedWord === seedWord); // Desactivar si ya se ha descargado
+
   const isDownloadDisabled = !encryptedData || 
     (hasDownloaded && 
     lastDownloadData?.seedWord === seedWord && 

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -42,46 +41,6 @@ export const DecryptTab = () => {
     toast({
       description: "Archivo .enc cargado correctamente",
     });
-  };
-
-  const handleBrowseFiles = async () => {
-    try {
-      // Listar archivos del directorio Downloads
-      const result = await Filesystem.readdir({
-        path: 'Download',
-        directory: Directory.ExternalStorage
-      });
-
-      // Filtrar solo archivos .enc
-      const encFiles = result.files.filter(file => file.name.endsWith('.enc'));
-
-      if (encFiles.length === 0) {
-        toast({
-          description: "No se encontraron archivos .enc en Descargas/Downloads.",
-        });
-        return;
-      }
-
-      // Leer el contenido del primer archivo .enc encontrado
-      const fileContent = await Filesystem.readFile({
-        path: `Download/${encFiles[0].name}`,
-        directory: Directory.ExternalStorage
-      });
-
-      // Crear un objeto File a partir del contenido
-      const file = new File([fileContent.data], encFiles[0].name, {
-        type: 'application/octet-stream'
-      });
-
-      handleFileSelect(file);
-
-    } catch (error) {
-      console.error('Error al acceder a los archivos:', error);
-      toast({
-        variant: "destructive",
-        description: "Error al acceder a los archivos del dispositivo",
-      });
-    }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -195,6 +154,7 @@ export const DecryptTab = () => {
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleFileDrop}
         className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+        onClick={() => document.getElementById("enc-file-input")?.click()}
       >
         <input
           type="file"
@@ -202,7 +162,6 @@ export const DecryptTab = () => {
           className="hidden"
           accept=".enc"
           onChange={handleFileInput}
-          capture="environment"
         />
         {encFile ? (
           <div>
@@ -219,31 +178,9 @@ export const DecryptTab = () => {
         ) : (
           <div className="flex flex-col items-center gap-4">
             <Upload className="h-12 w-12 text-gray-400" />
-            <p className="text-gray-500 mb-4">
+            <p className="text-gray-500">
               Selecciona un archivo .enc para desencriptar
             </p>
-            <div className="flex flex-col gap-2 w-full max-w-xs">
-              <Button 
-                variant="outline" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  document.getElementById("enc-file-input")?.click();
-                }}
-                className="w-full"
-              >
-                Seleccionar archivo
-              </Button>
-              <Button
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleBrowseFiles();
-                }}
-                className="w-full"
-              >
-                Buscar en Descargas/Downloads
-              </Button>
-            </div>
           </div>
         )}
       </div>

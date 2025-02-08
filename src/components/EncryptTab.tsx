@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -162,7 +161,7 @@ export const EncryptTab = () => {
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleImageDrop}
-        className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors relative"
+        className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
         onClick={() => document.getElementById("file-input")?.click()}
       >
         <input
@@ -171,7 +170,6 @@ export const EncryptTab = () => {
           className="hidden"
           accept="image/*"
           onChange={handleFileInput}
-          capture="environment"
         />
         {previewUrl ? (
           <div className="flex flex-col items-center gap-4">
@@ -215,7 +213,7 @@ export const EncryptTab = () => {
           <div className="flex flex-col items-center gap-2">
             <Upload className="h-12 w-12 text-gray-400" />
             <p className="text-gray-500">
-              Arrastra y suelta una imagen aquí o haz clic para seleccionar
+              Selecciona una imagen para encriptar
             </p>
           </div>
         )}

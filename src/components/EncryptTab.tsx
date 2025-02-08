@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -138,8 +139,6 @@ export const EncryptTab = () => {
         fileName: finalFileName
       });
       setDownloadedFileName(finalFileName);
-      
-      handleClear();
     } catch (error) {
       console.error('Error al guardar:', error);
     }
@@ -196,6 +195,7 @@ export const EncryptTab = () => {
         }}
         isEncrypted={isEncrypted}
         downloadedFileName={downloadedFileName}
+        encryptedSize={encryptedData?.size}
       />
 
       <SeedWordInput
@@ -209,7 +209,6 @@ export const EncryptTab = () => {
         <FileNameInput
           fileName={fileName}
           onChange={setFileName}
-          encryptedSize={encryptedData.size}
         />
       )}
 

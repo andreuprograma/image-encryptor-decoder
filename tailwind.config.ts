@@ -20,10 +20,10 @@ export default {
 		},
 		extend: {
 			keyframes: {
-				"blur-pulse": {
-					"0%": { filter: "blur(0px)" },
-					"50%": { filter: "blur(4px)" },
-					"100%": { filter: "blur(0px)" }
+				"image-fade": {
+					"0%": { opacity: "1" },
+					"50%": { opacity: "0.2" },
+					"100%": { opacity: "1" }
 				},
 				"accordion-down": {
 					from: {
@@ -43,7 +43,7 @@ export default {
 				}
 			},
 			animation: {
-				"blur-pulse": "blur-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+				"image-fade": "image-fade 3s ease-in-out infinite",
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
 			},

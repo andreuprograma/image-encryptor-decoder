@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -142,7 +141,6 @@ export const EncryptTab = () => {
     setLastUsedSeed("");
     setHasDownloaded(false);
     setLastDownloadData(null);
-    showMessage("Éxito", "Campos limpiados correctamente");
   };
 
   useEffect(() => {
@@ -214,7 +212,7 @@ export const EncryptTab = () => {
           Descargar
         </Button>
         <Button
-          variant="destructive"
+          variant="secondary"
           onClick={handleClear}
           className="flex-1"
         >

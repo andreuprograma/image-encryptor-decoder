@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Download, Eye, EyeOff, X, Upload } from "lucide-react";
 import CryptoJS from "crypto-js";
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 export const DecryptTab = () => {
   const [encFile, setEncFile] = useState<File | null>(null);
@@ -41,6 +42,46 @@ export const DecryptTab = () => {
     toast({
       description: "Archivo .enc cargado correctamente",
     });
+  };
+
+  const handleBrowseFiles = async () => {
+    try {
+      // Listar archivos del directorio Downloads
+      const result = await Filesystem.readdir({
+        path: '',
+        directory: Directory.Documents
+      });
+
+      // Filtrar solo archivos .enc
+      const encFiles = result.files.filter(file => file.name.endsWith('.enc'));
+
+      if (encFiles.length === 0) {
+        toast({
+          description: "No se encontraron archivos .enc. Asegúrate de que los archivos encriptados estén en la carpeta Documents.",
+        });
+        return;
+      }
+
+      // Leer el contenido del primer archivo .enc encontrado
+      const fileContent = await Filesystem.readFile({
+        path: encFiles[0].uri,
+        directory: Directory.Documents
+      });
+
+      // Crear un objeto File a partir del contenido
+      const file = new File([fileContent.data], encFiles[0].name, {
+        type: 'application/octet-stream'
+      });
+
+      handleFileSelect(file);
+
+    } catch (error) {
+      console.error('Error al acceder a los archivos:', error);
+      toast({
+        variant: "destructive",
+        description: "Error al acceder a los archivos del dispositivo",
+      });
+    }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,7 +176,6 @@ export const DecryptTab = () => {
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleFileDrop}
         className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
-        onClick={() => document.getElementById("enc-file-input")?.click()}
       >
         <input
           type="file"
@@ -158,11 +198,33 @@ export const DecryptTab = () => {
             )}
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-4">
             <Upload className="h-12 w-12 text-gray-400" />
-            <p className="text-gray-500">
-              Arrastra y suelta un archivo .enc aquí o haz clic para seleccionar
+            <p className="text-gray-500 mb-4">
+              Selecciona un archivo .enc para desencriptar
             </p>
+            <div className="flex flex-col gap-2 w-full max-w-xs">
+              <Button 
+                variant="outline" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  document.getElementById("enc-file-input")?.click();
+                }}
+                className="w-full"
+              >
+                Seleccionar archivo
+              </Button>
+              <Button
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBrowseFiles();
+                }}
+                className="w-full"
+              >
+                Buscar en Documents
+              </Button>
+            </div>
           </div>
         )}
       </div>

@@ -117,6 +117,9 @@ export const DecryptTab = () => {
           setLastEncryptedContent(encrypted);
           setLastUsedSeed(seedWord);
           
+          // Dispatch event for version tracking
+          window.dispatchEvent(new CustomEvent('decryptChange'));
+          
           toast({
             description: "Imagen desencriptada correctamente ✨",
           });
@@ -148,11 +151,14 @@ export const DecryptTab = () => {
       
       // Guardar en Downloads
       await Filesystem.writeFile({
-        path: fileName,
+        path: `Download/${fileName}`,
         data: await blob.text(),
         directory: Directory.ExternalStorage,
         recursive: true
       });
+      
+      // Dispatch event for version tracking
+      window.dispatchEvent(new CustomEvent('decryptChange'));
       
       toast({
         description: "Imagen guardada en Descargas/Downloads 💾",

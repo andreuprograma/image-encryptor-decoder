@@ -158,21 +158,41 @@ export const EncryptTab = () => {
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
+          // Intentamos compartir usando la API nativa
           await navigator.share({
             files: [file],
             title: 'Imagen Encriptada',
-            text: '¡Comparte esta imagen encriptada!'
+            text: '¡Comparte esta imagen encriptada!',
+            url: window.location.href // Añadimos la URL para ampliar las opciones de compartir
           });
           showMessage("Éxito", "Archivo compartido correctamente");
         } catch (error) {
-          if ((error as Error).name !== 'AbortError') {
-            showMessage("Error", "No se pudo compartir el archivo");
+          if ((error as Error).name === 'AbortError') {
+            // El usuario canceló la operación, no mostramos error
+            return;
+          }
+          // Si falla el share nativo, intentamos el portapapeles
+          try {
+            const shareData = new ClipboardItem({
+              [blob.type]: blob
+            });
+            await navigator.clipboard.write([shareData]);
+            showMessage("Éxito", "Archivo copiado al portapapeles");
+          } catch (clipError) {
+            // Si también falla el portapapeles, intentamos copiar el texto
+            try {
+              await navigator.clipboard.writeText(encryptedData.data);
+              showMessage("Éxito", "Contenido copiado al portapapeles");
+            } catch (textError) {
+              showMessage("Error", "No se pudo copiar al portapapeles");
+            }
           }
         }
       } else {
+        // Si no hay soporte para compartir, usamos el portapapeles
         try {
           await navigator.clipboard.writeText(encryptedData.data);
-          showMessage("Éxito", "Contenido copiado al portapapeles");
+          showMessage("Éxito", "Contenido copiado al portapapeles (el navegador no soporta compartir)");
         } catch (error) {
           showMessage("Error", "No se pudo copiar al portapapeles");
         }

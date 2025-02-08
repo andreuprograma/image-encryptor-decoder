@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RotateCw, RotateCcw, Eye, EyeOff, X, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import CryptoJS from "crypto-js";
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 export const EncryptTab = () => {
   const [image, setImage] = useState<File | null>(null);
@@ -35,6 +35,9 @@ export const EncryptTab = () => {
 
   const handleImageSelect = (file: File) => {
     setImage(file);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     setFileName(`${file.name}.enc`);
@@ -84,22 +87,27 @@ export const EncryptTab = () => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!encryptedData) return;
     
-    const blob = new Blob([encryptedData.data], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    toast({
-      description: "Archivo encriptado descargado correctamente 💾",
-    });
+    try {
+      await Filesystem.writeFile({
+        path: fileName,
+        data: encryptedData.data,
+        directory: Directory.ExternalStorage,
+        recursive: true
+      });
+      
+      toast({
+        description: "Archivo encriptado guardado en Descargas/Downloads 💾",
+      });
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      toast({
+        variant: "destructive",
+        description: "Error al guardar el archivo",
+      });
+    }
   };
 
   const handleClear = () => {
@@ -119,6 +127,14 @@ export const EncryptTab = () => {
   const isEncryptDisabled = !image || !seedWord || (
     lastEncryptedImage === previewUrl && lastUsedSeed === seedWord
   );
+
+  React.useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -49,7 +48,7 @@ export const DecryptTab = () => {
       // Listar archivos del directorio Downloads
       const result = await Filesystem.readdir({
         path: '',
-        directory: Directory.Documents
+        directory: Directory.ExternalStorage
       });
 
       // Filtrar solo archivos .enc
@@ -57,7 +56,7 @@ export const DecryptTab = () => {
 
       if (encFiles.length === 0) {
         toast({
-          description: "No se encontraron archivos .enc. Asegúrate de que los archivos encriptados estén en la carpeta Documents.",
+          description: "No se encontraron archivos .enc. Asegúrate de que los archivos encriptados estén en la carpeta Descargas/Downloads.",
         });
         return;
       }
@@ -65,7 +64,7 @@ export const DecryptTab = () => {
       // Leer el contenido del primer archivo .enc encontrado
       const fileContent = await Filesystem.readFile({
         path: encFiles[0].uri,
-        directory: Directory.Documents
+        directory: Directory.ExternalStorage
       });
 
       // Crear un objeto File a partir del contenido
@@ -138,19 +137,32 @@ export const DecryptTab = () => {
     }
   };
 
-  const handleDownloadDecrypted = () => {
+  const handleDownloadDecrypted = async () => {
     if (!decryptedImage) return;
-
-    const link = document.createElement('a');
-    link.href = decryptedImage;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
     
-    toast({
-      description: "Imagen descargada correctamente 💾",
-    });
+    try {
+      // Convertir data URL a Blob
+      const response = await fetch(decryptedImage);
+      const blob = await response.blob();
+      
+      // Guardar en Downloads
+      await Filesystem.writeFile({
+        path: fileName,
+        data: await blob.text(),
+        directory: Directory.ExternalStorage,
+        recursive: true
+      });
+      
+      toast({
+        description: "Imagen guardada en Descargas/Downloads 💾",
+      });
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      toast({
+        variant: "destructive",
+        description: "Error al guardar la imagen",
+      });
+    }
   };
 
   const handleClear = () => {
@@ -222,7 +234,7 @@ export const DecryptTab = () => {
                 }}
                 className="w-full"
               >
-                Buscar en Documents
+                Buscar en Descargas/Downloads
               </Button>
             </div>
           </div>

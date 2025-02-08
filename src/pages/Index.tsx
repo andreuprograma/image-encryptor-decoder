@@ -5,15 +5,16 @@ import { DecryptTab } from "@/components/DecryptTab";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-const Index = () => {
-  const timestamp = format(new Date(), "dd/MM/yyyy HH:mm", { locale: es });
+// Definimos una constante que no cambiará con cada renderizado
+const BUILD_TIMESTAMP = format(new Date(), "dd/MM/yyyy HH:mm", { locale: es });
 
+const Index = () => {
   return (
     <div className="container mx-auto p-4 max-w-4xl">
       <h1 className="text-3xl font-bold text-center mb-8">
         Encriptador de Imágenes{" "}
         <span className="text-sm font-normal text-gray-500">
-          (v.{timestamp})
+          (v.{BUILD_TIMESTAMP})
         </span>
       </h1>
       

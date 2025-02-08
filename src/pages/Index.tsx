@@ -6,7 +6,12 @@ import { DecryptTab } from "@/components/DecryptTab";
 const Index = () => {
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <h1 className="text-3xl font-bold text-center mb-8">Encriptador de Imágenes</h1>
+      <div className="flex items-center justify-center gap-2 mb-8">
+        <h1 className="text-3xl font-bold">Encriptador de Imágenes</h1>
+        <span className="px-2 py-1 text-sm bg-gray-100 rounded-full" title="Número de versión">
+          v.{Math.floor(Math.random() * 100)}
+        </span>
+      </div>
       
       <Tabs defaultValue="encrypt" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">

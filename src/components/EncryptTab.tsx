@@ -167,7 +167,7 @@ export const EncryptTab = () => {
           return;
         } catch (error) {
           if ((error as Error).name === 'AbortError') return;
-          console.log('No se pudo compartir como archivo, intentando siguiente método...');
+          console.log('Compartir archivo no soportado, intentando compartir URL...');
         }
       }
 
@@ -181,15 +181,28 @@ export const EncryptTab = () => {
         return;
       } catch (error) {
         if ((error as Error).name === 'AbortError') return;
-        console.log('No se pudo compartir como URL, intentando copiar al portapapeles...');
+        console.log('Compartir URL no soportado, copiando al portapapeles...');
+        
+        // Intento 3: Copiar al portapapeles
+        try {
+          await navigator.clipboard.writeText(encryptedData.data);
+          showMessage(
+            "Archivo copiado", 
+            "Tu navegador no soporta compartir directamente, pero el contenido se ha copiado al portapapeles. Puedes pegarlo donde necesites."
+          );
+          return;
+        } catch (clipboardError) {
+          showMessage(
+            "Error al compartir", 
+            "Tu navegador no soporta compartir ni copiar al portapapeles. Intenta guardar el archivo y compartirlo manualmente."
+          );
+        }
       }
-
-      // Intento 3: Copiar al portapapeles
-      await navigator.clipboard.writeText(encryptedData.data);
-      showMessage("Éxito", "Contenido copiado al portapapeles (tu navegador no soporta compartir)");
-
     } catch (error) {
-      showMessage("Error", "No se pudo compartir el archivo ni copiar al portapapeles");
+      showMessage(
+        "Error al compartir", 
+        "Ocurrió un error al intentar compartir. Intenta guardar el archivo y compartirlo manualmente."
+      );
     }
   };
 

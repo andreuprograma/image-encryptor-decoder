@@ -167,7 +167,7 @@ export const DecryptTab = () => {
           return;
         } catch (error) {
           if ((error as Error).name === 'AbortError') return;
-          console.log('No se pudo compartir como archivo, intentando siguiente método...');
+          console.log('Compartir archivo no soportado, intentando compartir URL...');
         }
       }
 
@@ -181,15 +181,28 @@ export const DecryptTab = () => {
         return;
       } catch (error) {
         if ((error as Error).name === 'AbortError') return;
-        console.log('No se pudo compartir como URL, intentando copiar al portapapeles...');
+        console.log('Compartir URL no soportado, copiando al portapapeles...');
+        
+        // Intento 3: Copiar al portapapeles
+        try {
+          await navigator.clipboard.writeText(decryptedImage);
+          showMessage(
+            "Imagen copiada", 
+            "Tu navegador no soporta compartir directamente, pero la imagen se ha copiado al portapapeles. Puedes pegarla donde necesites."
+          );
+          return;
+        } catch (clipboardError) {
+          showMessage(
+            "Error al compartir", 
+            "Tu navegador no soporta compartir ni copiar al portapapeles. Intenta guardar la imagen y compartirla manualmente."
+          );
+        }
       }
-
-      // Intento 3: Copiar al portapapeles
-      await navigator.clipboard.writeText(decryptedImage);
-      showMessage("Éxito", "Contenido copiado al portapapeles (tu navegador no soporta compartir)");
-
     } catch (error) {
-      showMessage("Error", "No se pudo compartir la imagen ni copiar al portapapeles");
+      showMessage(
+        "Error al compartir", 
+        "Ocurrió un error al intentar compartir. Intenta guardar la imagen y compartirla manualmente."
+      );
     }
   };
 

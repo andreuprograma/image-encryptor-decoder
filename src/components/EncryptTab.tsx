@@ -140,9 +140,7 @@ export const EncryptTab = () => {
     showMessage("Éxito", "Campos limpiados correctamente");
   };
 
-  const isEncryptDisabled = !image || !seedWord || (
-    lastEncryptedImage === previewUrl && lastUsedSeed === seedWord
-  );
+  const isEncryptDisabled = !image || !seedWord;
 
   useEffect(() => {
     return () => {

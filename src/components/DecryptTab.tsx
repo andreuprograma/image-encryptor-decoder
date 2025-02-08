@@ -131,9 +131,7 @@ export const DecryptTab = () => {
     showMessage("Éxito", "Campos limpiados correctamente");
   };
 
-  const isDecryptDisabled = !encFile || !seedWord || (
-    lastEncryptedContent === (encFile ? lastEncryptedContent : null) && lastUsedSeed === seedWord
-  );
+  const isDecryptDisabled = !encFile || !seedWord;
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">

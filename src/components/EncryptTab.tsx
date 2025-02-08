@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -129,6 +130,9 @@ export const EncryptTab = () => {
         seedWord,
         fileName: finalFileName
       });
+      
+      // Limpiar el archivo después de la descarga
+      handleClear();
     } catch (error) {
       console.error('Error al guardar:', error);
       showMessage("Error", "Error al guardar el archivo");

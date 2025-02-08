@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -132,6 +133,9 @@ export const DecryptTab = () => {
         seedWord,
         fileName: finalFileName
       });
+
+      // Limpiar el archivo después de la descarga
+      handleClear();
     } catch (error) {
       console.error('Error al guardar:', error);
       showMessage("Error", "No se pudo guardar la imagen en el dispositivo");

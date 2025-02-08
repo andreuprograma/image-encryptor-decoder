@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -22,20 +21,14 @@ export default {
 			keyframes: {
 				"image-fade": {
 					"0%": { opacity: "1" },
-					"1%": { opacity: "0.2" },
-					"2%": { opacity: "1" },
-					"20%": { opacity: "1" },
-					"21%": { opacity: "0.2" },
-					"22%": { opacity: "1" },
+					"2%": { opacity: "0.2" },
+					"4%": { opacity: "1" },
 					"40%": { opacity: "1" },
-					"41%": { opacity: "0.2" },
-					"42%": { opacity: "1" },
-					"60%": { opacity: "1" },
-					"61%": { opacity: "0.2" },
-					"62%": { opacity: "1" },
+					"42%": { opacity: "0.2" },
+					"44%": { opacity: "1" },
 					"80%": { opacity: "1" },
-					"81%": { opacity: "0.2" },
-					"82%": { opacity: "1" },
+					"82%": { opacity: "0.2" },
+					"84%": { opacity: "1" },
 					"100%": { opacity: "1" }
 				},
 				"accordion-down": {

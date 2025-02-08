@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -36,7 +35,7 @@ export default {
         }
       },
       animation: {
-        "pixel-effect": "pixel-effect 8s ease-in-out infinite",
+        "pixel-effect": "pixel-effect 16s ease-in-out infinite",
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out'
       },
@@ -94,4 +93,3 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
-

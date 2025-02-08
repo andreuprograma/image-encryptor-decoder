@@ -1,20 +1,15 @@
+
 import React, { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { RotateCw, RotateCcw, Eye, EyeOff, X, Upload } from "lucide-react";
+import { X } from "lucide-react";
 import CryptoJS from "crypto-js";
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import { useEncrypt } from "@/context/EncryptContext";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ImageUploadArea } from "./encrypt/ImageUploadArea";
+import { SeedWordInput } from "./encrypt/SeedWordInput";
+import { FileNameInput } from "./encrypt/FileNameInput";
+import { NotificationDialog } from "./encrypt/NotificationDialog";
 
 export const EncryptTab = () => {
   const { seedWord, setSeedWord, imageFile, setImageFile } = useEncrypt();
@@ -41,16 +36,6 @@ export const EncryptTab = () => {
     setShowDialog(true);
   };
 
-  const handleImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
-      handleImageSelect(file);
-    } else {
-      showMessage("Error", "Por favor, selecciona un archivo de imagen válido");
-    }
-  };
-
   const handleImageSelect = (file: File) => {
     setImageFile(file);
     if (previewUrl) {
@@ -63,13 +48,6 @@ export const EncryptTab = () => {
     setLastEncryptedImage(null);
     setHasDownloaded(false);
     setLastDownloadData(null);
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleImageSelect(file);
-    }
   };
 
   const rotate = (direction: "left" | "right") => {
@@ -154,8 +132,6 @@ export const EncryptTab = () => {
     showMessage("Éxito", "Campos limpiados correctamente");
   };
 
-  const isEncryptDisabled = !imageFile || !seedWord;
-
   useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -164,6 +140,7 @@ export const EncryptTab = () => {
     };
   }, [previewUrl]);
 
+  const isEncryptDisabled = !imageFile || !seedWord;
   const isDownloadDisabled = !encryptedData || 
     (hasDownloaded && 
     lastDownloadData?.seedWord === seedWord && 
@@ -171,121 +148,34 @@ export const EncryptTab = () => {
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
-      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{dialogMessage.title}</AlertDialogTitle>
-            <AlertDialogDescription>{dialogMessage.description}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setShowDialog(false)}>
-              Entendido
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <NotificationDialog
+        open={showDialog}
+        onOpenChange={setShowDialog}
+        title={dialogMessage.title}
+        description={dialogMessage.description}
+      />
 
-      <div
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleImageDrop}
-        className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
-        onClick={() => document.getElementById("file-input")?.click()}
-      >
-        <input
-          type="file"
-          id="file-input"
-          className="hidden"
-          accept="image/*"
-          onChange={handleFileInput}
-        />
-        {previewUrl ? (
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative w-full max-w-md">
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="max-h-64 object-contain transition-transform duration-300 mx-auto"
-                style={{ transform: `rotate(${rotation}deg)` }}
-              />
-              <div className="absolute top-0 left-0 right-0 flex justify-center gap-2 -mt-8">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    rotate("left");
-                  }}
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    rotate("right");
-                  }}
-                >
-                  <RotateCw className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            {imageFile && (
-              <p className="text-sm text-gray-500">
-                Tamaño original: {(imageFile.size / 1024).toFixed(2)} KB
-              </p>
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-2">
-            <Upload className="h-12 w-12 text-gray-400" />
-            <p className="text-gray-500">
-              Selecciona una imagen para encriptar
-            </p>
-          </div>
-        )}
-      </div>
+      <ImageUploadArea
+        previewUrl={previewUrl}
+        rotation={rotation}
+        imageFile={imageFile}
+        onImageSelect={handleImageSelect}
+        onRotate={rotate}
+      />
 
-      <div className="space-y-2">
-        <label htmlFor="seed-word" className="text-sm font-medium">
-          Palabra Semilla
-        </label>
-        <div className="relative">
-          <Input
-            id="seed-word"
-            type={showSeedWord ? "text" : "password"}
-            value={seedWord}
-            onChange={(e) => setSeedWord(e.target.value)}
-            placeholder="Introduce la palabra semilla"
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2"
-            onClick={() => setShowSeedWord(!showSeedWord)}
-          >
-            {showSeedWord ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </Button>
-        </div>
-      </div>
+      <SeedWordInput
+        seedWord={seedWord}
+        onChange={setSeedWord}
+        showSeedWord={showSeedWord}
+        onToggleVisibility={() => setShowSeedWord(!showSeedWord)}
+      />
 
       {encryptedData && (
-        <div className="space-y-2">
-          <label htmlFor="file-name" className="text-sm font-medium">
-            Nombre del archivo encriptado
-          </label>
-          <Input
-            id="file-name"
-            type="text"
-            value={fileName}
-            onChange={(e) => setFileName(e.target.value)}
-            placeholder="nombre_archivo.enc"
-          />
-          <p className="text-sm text-gray-500">
-            Tamaño encriptado: {(encryptedData.size / 1024).toFixed(2)} KB
-          </p>
-        </div>
+        <FileNameInput
+          fileName={fileName}
+          onChange={setFileName}
+          encryptedSize={encryptedData.size}
+        />
       )}
 
       <div className="flex flex-wrap gap-2">

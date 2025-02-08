@@ -5,6 +5,7 @@ import { DecryptTab } from "@/components/DecryptTab";
 import { format } from "date-fns";
 
 const Index = () => {
+  // This will be "frozen" at build time
   const currentDateTime = format(new Date(), "dd/MM/yyyy HH:mm");
 
   return (

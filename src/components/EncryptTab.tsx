@@ -2,10 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RotateCw, RotateCcw, Eye, EyeOff, X, Upload } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 import CryptoJS from "crypto-js";
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const EncryptTab = () => {
   const [image, setImage] = useState<File | null>(null);
@@ -20,6 +28,13 @@ export const EncryptTab = () => {
   const [fileName, setFileName] = useState("");
   const [lastEncryptedImage, setLastEncryptedImage] = useState<string | null>(null);
   const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState({ title: "", description: "" });
+
+  const showMessage = (title: string, description: string) => {
+    setDialogMessage({ title, description });
+    setShowDialog(true);
+  };
 
   const handleImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -27,10 +42,7 @@ export const EncryptTab = () => {
     if (file && file.type.startsWith("image/")) {
       handleImageSelect(file);
     } else {
-      toast({
-        variant: "destructive",
-        description: "Por favor, selecciona un archivo de imagen válido",
-      });
+      showMessage("Error", "Por favor, selecciona un archivo de imagen válido");
     }
   };
 
@@ -74,17 +86,12 @@ export const EncryptTab = () => {
         setLastEncryptedImage(base64);
         setLastUsedSeed(seedWord);
 
-        toast({
-          description: "Imagen encriptada correctamente ✨",
-        });
+        showMessage("Éxito", "Imagen encriptada correctamente ✨");
       };
 
       reader.readAsDataURL(image);
     } catch (error) {
-      toast({
-        variant: "destructive",
-        description: "Error al encriptar la imagen",
-      });
+      showMessage("Error", "Error al encriptar la imagen");
     }
   };
 
@@ -92,7 +99,6 @@ export const EncryptTab = () => {
     if (!encryptedData) return;
     
     try {
-      // En móvil, guardar en Downloads usando Filesystem
       if (Capacitor.isNativePlatform()) {
         await Filesystem.writeFile({
           path: `Download/${fileName}`,
@@ -101,11 +107,8 @@ export const EncryptTab = () => {
           recursive: true
         });
         
-        toast({
-          description: "Archivo guardado en Descargas/Downloads 💾",
-        });
+        showMessage("Éxito", "Archivo guardado en Descargas/Downloads 💾");
       } 
-      // En navegador web, usar el método tradicional de descarga
       else {
         const blob = new Blob([encryptedData.data], { type: 'application/octet-stream' });
         const url = window.URL.createObjectURL(blob);
@@ -117,16 +120,11 @@ export const EncryptTab = () => {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
         
-        toast({
-          description: "Archivo descargado correctamente 💾",
-        });
+        showMessage("Éxito", "Archivo descargado correctamente 💾");
       }
     } catch (error) {
       console.error('Error al guardar:', error);
-      toast({
-        variant: "destructive",
-        description: "Error al guardar el archivo",
-      });
+      showMessage("Error", "Error al guardar el archivo");
     }
   };
 
@@ -139,9 +137,7 @@ export const EncryptTab = () => {
     setFileName("");
     setLastEncryptedImage(null);
     setLastUsedSeed("");
-    toast({
-      description: "Campos limpiados correctamente",
-    });
+    showMessage("Éxito", "Campos limpiados correctamente");
   };
 
   const isEncryptDisabled = !image || !seedWord || (
@@ -158,6 +154,20 @@ export const EncryptTab = () => {
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
+      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{dialogMessage.title}</AlertDialogTitle>
+            <AlertDialogDescription>{dialogMessage.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowDialog(false)}>
+              Entendido
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleImageDrop}

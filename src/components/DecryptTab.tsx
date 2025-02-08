@@ -1,15 +1,12 @@
-
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
 import { Download, Eye, EyeOff, X, Upload } from "lucide-react";
 import CryptoJS from "crypto-js";
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -29,8 +26,13 @@ export const DecryptTab = () => {
   } | null>(null);
   const [lastEncryptedContent, setLastEncryptedContent] = useState<string | null>(null);
   const [lastUsedSeed, setLastUsedSeed] = useState<string>("");
-  const [showErrorDialog, setShowErrorDialog] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState({ title: "", description: "" });
+
+  const showMessage = (title: string, description: string) => {
+    setDialogMessage({ title, description });
+    setShowDialog(true);
+  };
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -38,8 +40,7 @@ export const DecryptTab = () => {
     if (file && file.name.endsWith('.enc')) {
       handleFileSelect(file);
     } else {
-      setErrorMessage("Por favor, selecciona un archivo .enc válido");
-      setShowErrorDialog(true);
+      showMessage("Error", "Por favor, selecciona un archivo .enc válido");
     }
   };
 
@@ -49,9 +50,7 @@ export const DecryptTab = () => {
     setFileSizes(prev => prev ? { ...prev, encrypted: file.size } : { encrypted: file.size, decrypted: 0 });
     setDecryptedImage("");
     setLastEncryptedContent(null);
-    toast({
-      description: "Archivo .enc cargado correctamente",
-    });
+    showMessage("Éxito", "Archivo .enc cargado correctamente");
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,8 +58,7 @@ export const DecryptTab = () => {
     if (file && file.name.endsWith('.enc')) {
       handleFileSelect(file);
     } else if (file) {
-      setErrorMessage("Por favor, selecciona un archivo .enc válido");
-      setShowErrorDialog(true);
+      showMessage("Error", "Por favor, selecciona un archivo .enc válido");
     }
   };
 
@@ -87,20 +85,16 @@ export const DecryptTab = () => {
           
           window.dispatchEvent(new CustomEvent('decryptChange'));
           
-          toast({
-            description: "Imagen desencriptada correctamente ✨",
-          });
+          showMessage("Éxito", "Imagen desencriptada correctamente ✨");
         } catch (error) {
           setDecryptedImage("");
-          setErrorMessage("Palabra semilla incorrecta o archivo corrupto");
-          setShowErrorDialog(true);
+          showMessage("Error", "Palabra semilla incorrecta o archivo corrupto");
         }
       };
 
       reader.readAsText(encFile);
     } catch (error) {
-      setErrorMessage("Error al desencriptar la imagen");
-      setShowErrorDialog(true);
+      showMessage("Error", "Error al desencriptar la imagen");
     }
   };
 
@@ -119,13 +113,10 @@ export const DecryptTab = () => {
       
       window.dispatchEvent(new CustomEvent('decryptChange'));
       
-      toast({
-        description: "Imagen guardada en Descargas/Downloads 💾",
-      });
+      showMessage("Éxito", "Imagen guardada en Descargas/Downloads 💾");
     } catch (error) {
       console.error('Error al guardar:', error);
-      setErrorMessage("No se pudo guardar la imagen en el dispositivo");
-      setShowErrorDialog(true);
+      showMessage("Error", "No se pudo guardar la imagen en el dispositivo");
     }
   };
 
@@ -137,9 +128,7 @@ export const DecryptTab = () => {
     setFileSizes(null);
     setLastEncryptedContent(null);
     setLastUsedSeed("");
-    toast({
-      description: "Campos limpiados correctamente",
-    });
+    showMessage("Éxito", "Campos limpiados correctamente");
   };
 
   const isDecryptDisabled = !encFile || !seedWord || (
@@ -148,14 +137,14 @@ export const DecryptTab = () => {
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
-      <AlertDialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Error</AlertDialogTitle>
-            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+            <AlertDialogTitle>{dialogMessage.title}</AlertDialogTitle>
+            <AlertDialogDescription>{dialogMessage.description}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setShowErrorDialog(false)}>
+            <AlertDialogAction onClick={() => setShowDialog(false)}>
               Entendido
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -283,4 +272,3 @@ export const DecryptTab = () => {
     </div>
   );
 };
-

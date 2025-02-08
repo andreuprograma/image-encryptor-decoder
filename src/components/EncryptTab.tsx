@@ -49,6 +49,15 @@ export const EncryptTab = () => {
     }
   }, [imageFile, setPreviewUrl]);
 
+  // Reset encryption state when seedWord changes
+  useEffect(() => {
+    setEncryptedData(null);
+    setLastEncryptedImage(null);
+    setHasDownloaded(false);
+    setLastDownloadData(null);
+    setIsEncrypted(false);
+  }, [seedWord]);
+
   const showMessage = (title: string, description: string) => {
     setDialogMessage({ title, description });
     setShowDialog(true);
@@ -162,9 +171,7 @@ export const EncryptTab = () => {
   }, [previewUrl]);
 
   const isEncryptDisabled = !imageFile || 
-    !seedWord || 
-    encryptedData !== null || 
-    (hasDownloaded && lastDownloadData?.seedWord === seedWord);
+    !seedWord;
 
   const isDownloadDisabled = !encryptedData || 
     (hasDownloaded && 

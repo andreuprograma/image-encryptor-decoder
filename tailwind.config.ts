@@ -22,7 +22,15 @@ export default {
 			keyframes: {
 				"image-fade": {
 					"0%": { opacity: "1" },
+					"10%": { opacity: "0.2" },
+					"20%": { opacity: "1" },
+					"30%": { opacity: "0.2" },
+					"40%": { opacity: "1" },
 					"50%": { opacity: "0.2" },
+					"60%": { opacity: "1" },
+					"70%": { opacity: "0.2" },
+					"80%": { opacity: "1" },
+					"90%": { opacity: "0.2" },
 					"100%": { opacity: "1" }
 				},
 				"accordion-down": {
@@ -93,4 +101,3 @@ export default {
 	},
 	plugins: [require("tailwindcss-animate")],
 } satisfies Config;
-

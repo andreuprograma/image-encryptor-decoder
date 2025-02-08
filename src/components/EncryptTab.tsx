@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -38,6 +37,7 @@ export const EncryptTab = () => {
     fileName: string;
   } | null>(null);
   const [showSeedWord, setShowSeedWord] = useState(false);
+  const [isEncrypted, setIsEncrypted] = useState(false);
 
   useEffect(() => {
     if (imageFile) {
@@ -60,7 +60,6 @@ export const EncryptTab = () => {
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     
-    // Extraemos el nombre base del archivo sin extensión
     const baseFileName = file.name.split('.')[0];
     setFileName(baseFileName);
     
@@ -68,12 +67,14 @@ export const EncryptTab = () => {
     setLastEncryptedImage(null);
     setHasDownloaded(false);
     setLastDownloadData(null);
+    setIsEncrypted(false);
   };
 
   const handleEncrypt = async () => {
     if (!imageFile || !seedWord) return;
 
     try {
+      setIsEncrypted(true);
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64 = e.target?.result as string;
@@ -92,6 +93,7 @@ export const EncryptTab = () => {
 
       reader.readAsDataURL(imageFile);
     } catch (error) {
+      setIsEncrypted(false);
       showMessage("Error", "Error al encriptar la imagen");
     }
   };
@@ -131,7 +133,6 @@ export const EncryptTab = () => {
         fileName: finalFileName
       });
       
-      // Limpiar el archivo después de la descarga
       handleClear();
     } catch (error) {
       console.error('Error al guardar:', error);
@@ -150,6 +151,7 @@ export const EncryptTab = () => {
     setLastUsedSeed("");
     setHasDownloaded(false);
     setLastDownloadData(null);
+    setIsEncrypted(false);
   };
 
   useEffect(() => {
@@ -189,6 +191,7 @@ export const EncryptTab = () => {
         onRotate={(direction: "left" | "right") => {
           setRotation(direction === "right" ? rotation + 90 : rotation - 90);
         }}
+        isEncrypted={isEncrypted}
       />
 
       <SeedWordInput

@@ -9,6 +9,7 @@ interface ImageUploadAreaProps {
   imageFile: File | null;
   onImageSelect: (file: File) => void;
   onRotate: (direction: "left" | "right") => void;
+  isEncrypted?: boolean;
 }
 
 export const ImageUploadArea = ({
@@ -17,6 +18,7 @@ export const ImageUploadArea = ({
   imageFile,
   onImageSelect,
   onRotate,
+  isEncrypted = false,
 }: ImageUploadAreaProps) => {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -50,12 +52,19 @@ export const ImageUploadArea = ({
       {previewUrl ? (
         <div className="flex flex-col items-center gap-4">
           <div className="relative w-full max-w-md">
-            <img
-              src={previewUrl}
-              alt="Preview"
-              className="max-h-64 object-contain transition-transform duration-300 mx-auto"
-              style={{ transform: `rotate(${rotation}deg)` }}
-            />
+            <div className={`relative ${isEncrypted ? 'after:content-[""] after:absolute after:inset-0 after:bg-black after:opacity-30 after:animate-pulse' : ''}`}>
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className={`max-h-64 object-contain transition-all duration-300 mx-auto ${
+                  isEncrypted ? 'blur-sm scale-[1.02] brightness-90' : ''
+                }`}
+                style={{ transform: `rotate(${rotation}deg)` }}
+              />
+              {isEncrypted && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shine_1.5s_ease-in-out_infinite] -skew-x-12" />
+              )}
+            </div>
             <div className="absolute top-0 left-0 right-0 flex justify-center gap-2 -mt-8">
               <Button
                 variant="outline"

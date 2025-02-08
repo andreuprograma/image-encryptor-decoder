@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Download, Eye, EyeOff, X, Upload } from "lucide-react";
+import { Download, Eye, EyeOff, X, Upload, Share2 } from "lucide-react";
 import CryptoJS from "crypto-js";
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import {
@@ -155,6 +154,41 @@ export const DecryptTab = () => {
     showMessage("Éxito", "Campos limpiados correctamente");
   };
 
+  const handleShare = async () => {
+    if (!decryptedImage) return;
+
+    try {
+      const response = await fetch(decryptedImage);
+      const blob = await response.blob();
+      const file = new File([blob], fileName, { type: blob.type });
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Imagen Desencriptada',
+            text: '¡Comparte esta imagen!'
+          });
+          showMessage("Éxito", "Archivo compartido correctamente");
+        } catch (error) {
+          if ((error as Error).name !== 'AbortError') {
+            showMessage("Error", "No se pudo compartir el archivo");
+          }
+        }
+      } else {
+        // Fallback to clipboard for desktop
+        try {
+          await navigator.clipboard.writeText(decryptedImage);
+          showMessage("Éxito", "Contenido copiado al portapapeles");
+        } catch (error) {
+          showMessage("Error", "No se pudo copiar al portapapeles");
+        }
+      }
+    } catch (error) {
+      showMessage("Error", "No se pudo compartir la imagen");
+    }
+  };
+
   const isDecryptDisabled = !encFile || 
     !seedWord || 
     decryptedImage !== "" || 
@@ -277,6 +311,16 @@ export const DecryptTab = () => {
         >
           <Download className="h-4 w-4" />
           Descargar
+        </Button>
+
+        <Button
+          variant="secondary"
+          onClick={handleShare}
+          disabled={!decryptedImage}
+          className="flex-1"
+        >
+          <Share2 className="h-4 w-4 mr-2" />
+          Compartir
         </Button>
 
         <Button

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -10,6 +9,7 @@ import { ImageUploadArea } from "./encrypt/ImageUploadArea";
 import { SeedWordInput } from "./encrypt/SeedWordInput";
 import { FileNameInput } from "./encrypt/FileNameInput";
 import { NotificationDialog } from "./encrypt/NotificationDialog";
+import { Share2 } from "lucide-react";
 
 export const EncryptTab = () => {
   const { 
@@ -148,6 +148,36 @@ export const EncryptTab = () => {
     }
   };
 
+  const handleShare = async () => {
+    if (!encryptedData) return;
+
+    const blob = new Blob([encryptedData.data], { type: 'application/octet-stream' });
+    const file = new File([blob], `${fileName}.enc`, { type: 'application/octet-stream' });
+
+    if (navigator.share && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'Imagen Encriptada',
+          text: '¡Comparte esta imagen encriptada!'
+        });
+        showMessage("Éxito", "Archivo compartido correctamente");
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          showMessage("Error", "No se pudo compartir el archivo");
+        }
+      }
+    } else {
+      // Fallback to clipboard
+      try {
+        await navigator.clipboard.writeText(encryptedData.data);
+        showMessage("Éxito", "Contenido copiado al portapapeles");
+      } catch (error) {
+        showMessage("Error", "No se pudo copiar al portapapeles");
+      }
+    }
+  };
+
   const handleClear = () => {
     setImageFile(null);
     setPreviewUrl("");
@@ -235,6 +265,15 @@ export const EncryptTab = () => {
         </Button>
         <Button
           variant="secondary"
+          onClick={handleShare}
+          disabled={!encryptedData}
+          className="flex-1"
+        >
+          <Share2 className="h-4 w-4 mr-2" />
+          Compartir
+        </Button>
+        <Button
+          variant="secondary"
           onClick={handleClear}
           disabled={isClearDisabled}
           className="flex-1"
@@ -246,4 +285,3 @@ export const EncryptTab = () => {
     </div>
   );
 };
-

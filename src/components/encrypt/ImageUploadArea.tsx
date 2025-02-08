@@ -53,12 +53,7 @@ export const ImageUploadArea = ({
           </>
         )}
         {isEncrypted && (
-          <>
-            <p>✓ Imagen encriptada</p>
-            {encryptedSize > 0 && (
-              <p>✓ Tamaño encriptado: {(encryptedSize / 1024).toFixed(2)} KB</p>
-            )}
-          </>
+          <p>✓ Imagen encriptada ({(encryptedSize / 1024).toFixed(2)} KB)</p>
         )}
         {downloadedFileName && (
           <p>✓ Imagen descargada como: {downloadedFileName}</p>

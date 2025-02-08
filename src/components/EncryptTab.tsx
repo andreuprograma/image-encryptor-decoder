@@ -5,6 +5,7 @@ import { RotateCw, RotateCcw, Eye, EyeOff, X, Upload } from "lucide-react";
 import CryptoJS from "crypto-js";
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
+import { useEncrypt } from "@/context/EncryptContext";
 import {
   AlertDialog,
   AlertDialogAction,

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -39,6 +38,7 @@ export const EncryptTab = () => {
   } | null>(null);
   const [showSeedWord, setShowSeedWord] = useState(false);
   const [isEncrypted, setIsEncrypted] = useState(false);
+  const [downloadedFileName, setDownloadedFileName] = useState("");
 
   useEffect(() => {
     if (imageFile) {
@@ -49,13 +49,13 @@ export const EncryptTab = () => {
     }
   }, [imageFile, setPreviewUrl]);
 
-  // Reset encryption state when seedWord changes
   useEffect(() => {
     setEncryptedData(null);
     setLastEncryptedImage(null);
     setHasDownloaded(false);
     setLastDownloadData(null);
     setIsEncrypted(false);
+    setDownloadedFileName("");
   }, [seedWord]);
 
   const showMessage = (title: string, description: string) => {
@@ -79,6 +79,7 @@ export const EncryptTab = () => {
     setHasDownloaded(false);
     setLastDownloadData(null);
     setIsEncrypted(false);
+    setDownloadedFileName("");
   };
 
   const handleEncrypt = async () => {
@@ -102,7 +103,7 @@ export const EncryptTab = () => {
 
       reader.readAsDataURL(imageFile);
     } catch (error) {
-      showMessage("Error", "Error al encriptar la imagen");
+      console.error('Error al encriptar:', error);
     }
   };
 
@@ -119,8 +120,6 @@ export const EncryptTab = () => {
           directory: Directory.ExternalStorage,
           recursive: true
         });
-        
-        showMessage("Éxito", "Archivo guardado en Descargas/Downloads 💾");
       } 
       else {
         const blob = new Blob([encryptedData.data], { type: 'application/octet-stream' });
@@ -132,19 +131,17 @@ export const EncryptTab = () => {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        
-        showMessage("Éxito", "Archivo descargado correctamente 💾");
       }
       setHasDownloaded(true);
       setLastDownloadData({
         seedWord,
         fileName: finalFileName
       });
+      setDownloadedFileName(finalFileName);
       
       handleClear();
     } catch (error) {
       console.error('Error al guardar:', error);
-      showMessage("Error", "Error al guardar el archivo");
     }
   };
 
@@ -160,6 +157,7 @@ export const EncryptTab = () => {
     setHasDownloaded(false);
     setLastDownloadData(null);
     setIsEncrypted(false);
+    setDownloadedFileName("");
   };
 
   useEffect(() => {
@@ -170,8 +168,7 @@ export const EncryptTab = () => {
     };
   }, [previewUrl]);
 
-  const isEncryptDisabled = !imageFile || 
-    !seedWord;
+  const isEncryptDisabled = !imageFile || !seedWord;
 
   const isDownloadDisabled = !encryptedData || 
     (hasDownloaded && 
@@ -198,6 +195,7 @@ export const EncryptTab = () => {
           setRotation(direction === "right" ? rotation + 90 : rotation - 90);
         }}
         isEncrypted={isEncrypted}
+        downloadedFileName={downloadedFileName}
       />
 
       <SeedWordInput

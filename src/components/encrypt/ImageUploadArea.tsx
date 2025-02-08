@@ -10,6 +10,8 @@ interface ImageUploadAreaProps {
   onImageSelect: (file: File) => void;
   onRotate: (direction: "left" | "right") => void;
   isEncrypted?: boolean;
+  lastAction?: string;
+  downloadedFileName?: string;
 }
 
 export const ImageUploadArea = ({
@@ -19,6 +21,8 @@ export const ImageUploadArea = ({
   onImageSelect,
   onRotate,
   isEncrypted = false,
+  lastAction = "",
+  downloadedFileName = "",
 }: ImageUploadAreaProps) => {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -33,6 +37,27 @@ export const ImageUploadArea = ({
     if (file) {
       onImageSelect(file);
     }
+  };
+
+  const renderLogMessage = () => {
+    if (!imageFile && !lastAction) return null;
+
+    return (
+      <div className="mt-4 space-y-2 text-sm text-gray-500">
+        {imageFile && (
+          <>
+            <p>✓ Archivo cargado: {imageFile.name}</p>
+            <p>✓ Tamaño original: {(imageFile.size / 1024).toFixed(2)} KB</p>
+          </>
+        )}
+        {isEncrypted && (
+          <p>✓ Imagen encriptada</p>
+        )}
+        {downloadedFileName && (
+          <p>✓ Imagen descargada como: {downloadedFileName}</p>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -83,16 +108,7 @@ export const ImageUploadArea = ({
               </Button>
             </div>
           </div>
-          {imageFile && (
-            <div className="space-y-1">
-              <p className="text-sm text-gray-500">
-                Archivo: {imageFile.name}
-              </p>
-              <p className="text-sm text-gray-500">
-                Tamaño original: {(imageFile.size / 1024).toFixed(2)} KB
-              </p>
-            </div>
-          )}
+          {renderLogMessage()}
         </div>
       ) : (
         <div className="flex flex-col items-center gap-2">
@@ -105,4 +121,3 @@ export const ImageUploadArea = ({
     </div>
   );
 };
-

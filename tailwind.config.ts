@@ -22,15 +22,20 @@ export default {
 			keyframes: {
 				"image-fade": {
 					"0%": { opacity: "1" },
-					"10%": { opacity: "0.2" },
+					"1%": { opacity: "0.2" },
+					"2%": { opacity: "1" },
 					"20%": { opacity: "1" },
-					"30%": { opacity: "0.2" },
+					"21%": { opacity: "0.2" },
+					"22%": { opacity: "1" },
 					"40%": { opacity: "1" },
-					"50%": { opacity: "0.2" },
+					"41%": { opacity: "0.2" },
+					"42%": { opacity: "1" },
 					"60%": { opacity: "1" },
-					"70%": { opacity: "0.2" },
+					"61%": { opacity: "0.2" },
+					"62%": { opacity: "1" },
 					"80%": { opacity: "1" },
-					"90%": { opacity: "0.2" },
+					"81%": { opacity: "0.2" },
+					"82%": { opacity: "1" },
 					"100%": { opacity: "1" }
 				},
 				"accordion-down": {

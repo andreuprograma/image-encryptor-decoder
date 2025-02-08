@@ -25,9 +25,6 @@ export const FileNameInput = ({
         onChange={(e) => onChange(e.target.value)}
         placeholder="nombre_archivo.enc"
       />
-      <p className="text-sm text-gray-500">
-        Tamaño encriptado: {(encryptedSize / 1024).toFixed(2)} KB
-      </p>
     </div>
   );
 };

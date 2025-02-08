@@ -2,17 +2,30 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EncryptTab } from "@/components/EncryptTab";
 import { DecryptTab } from "@/components/DecryptTab";
-import { format } from "date-fns";
+import { useState, useEffect } from "react";
 
 const Index = () => {
-  // This will be "frozen" at build time
-  const currentDateTime = format(new Date(), "dd/MM/yyyy HH:mm");
+  const [version, setVersion] = useState(1);
+
+  useEffect(() => {
+    const handleVersionChange = () => {
+      setVersion(prev => prev + 1);
+    };
+
+    window.addEventListener('encryptChange', handleVersionChange);
+    window.addEventListener('decryptChange', handleVersionChange);
+
+    return () => {
+      window.removeEventListener('encryptChange', handleVersionChange);
+      window.removeEventListener('decryptChange', handleVersionChange);
+    };
+  }, []);
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <div className="flex items-center justify-center gap-4 mb-8">
+      <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Encriptador de Imágenes</h1>
-        <span className="text-sm text-muted-foreground">v.{currentDateTime}</span>
+        <span className="text-sm text-gray-500">v{version}</span>
       </div>
       
       <Tabs defaultValue="encrypt" className="w-full">

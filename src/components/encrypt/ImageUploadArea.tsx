@@ -55,8 +55,8 @@ export const ImageUploadArea = ({
             <img
               src={previewUrl}
               alt="Preview"
-              className={`max-h-64 object-contain transition-opacity duration-[3s] ${
-                isEncrypted ? 'opacity-100 animate-[opacity-pulse_3s_ease-in-out_infinite]' : ''
+              className={`max-h-64 object-contain ${
+                isEncrypted ? 'animate-pixel-effect' : ''
               }`}
               style={{ transform: `rotate(${rotation}deg)` }}
             />
@@ -105,3 +105,4 @@ export const ImageUploadArea = ({
     </div>
   );
 };
+

@@ -20,10 +20,10 @@ export default {
     },
     extend: {
       keyframes: {
-        "opacity-pulse": {
-          "0%": { opacity: "1" },
-          "50%": { opacity: "0.2" },
-          "100%": { opacity: "1" }
+        "pixel-effect": {
+          "0%": { filter: "blur(0px)" },
+          "50%": { filter: "blur(10px)" },
+          "100%": { filter: "blur(0px)" }
         },
         "accordion-down": {
           from: { height: '0' },
@@ -35,7 +35,7 @@ export default {
         }
       },
       animation: {
-        "opacity-pulse": "opacity-pulse 6s ease-in-out infinite",
+        "pixel-effect": "pixel-effect 6s ease-in-out infinite",
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out'
       },

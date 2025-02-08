@@ -2,11 +2,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EncryptTab } from "@/components/EncryptTab";
 import { DecryptTab } from "@/components/DecryptTab";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 
-// Definimos una constante que no cambiará con cada renderizado
-const BUILD_TIMESTAMP = format(new Date(), "dd/MM/yyyy HH:mm", { locale: es });
+// Definimos una variable de compilación que se establecerá durante el build
+const BUILD_TIMESTAMP = import.meta.env.VITE_BUILD_TIME || "Development";
 
 const Index = () => {
   return (

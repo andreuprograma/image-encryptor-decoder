@@ -35,7 +35,7 @@ export default {
 				}
 			},
 			animation: {
-				"image-fade": "image-fade 8s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+				"image-fade": "image-fade 8s ease-in-out infinite",
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
 			},

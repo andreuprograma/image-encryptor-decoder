@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RotateCw, RotateCcw, Eye, EyeOff, X, Upload } from "lucide-react";
@@ -128,7 +129,7 @@ export const EncryptTab = () => {
     lastEncryptedImage === previewUrl && lastUsedSeed === seedWord
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);

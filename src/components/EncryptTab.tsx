@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -59,7 +60,7 @@ export const EncryptTab = () => {
     }
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
-    setFileName(`${file.name}.enc`);
+    setFileName(file.name.replace('.enc', '')); // Removemos .enc si existe
     setEncryptedData(null);
     setLastEncryptedImage(null);
     setHasDownloaded(false);
@@ -96,9 +97,11 @@ export const EncryptTab = () => {
     if (!encryptedData) return;
     
     try {
+      const finalFileName = `${fileName.replace('.enc', '')}.enc`; // Aseguramos que tenga .enc
+      
       if (Capacitor.isNativePlatform()) {
         await Filesystem.writeFile({
-          path: `Download/${fileName}`,
+          path: `Download/${finalFileName}`,
           data: encryptedData.data,
           directory: Directory.ExternalStorage,
           recursive: true
@@ -111,7 +114,7 @@ export const EncryptTab = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = fileName;
+        a.download = finalFileName;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -122,7 +125,7 @@ export const EncryptTab = () => {
       setHasDownloaded(true);
       setLastDownloadData({
         seedWord,
-        fileName
+        fileName: finalFileName
       });
     } catch (error) {
       console.error('Error al guardar:', error);
@@ -153,13 +156,15 @@ export const EncryptTab = () => {
 
   const isEncryptDisabled = !imageFile || 
     !seedWord || 
-    encryptedData !== null || // Desactivar si ya se ha encriptado
-    (hasDownloaded && lastDownloadData?.seedWord === seedWord); // Desactivar si ya se ha descargado
+    encryptedData !== null || 
+    (hasDownloaded && lastDownloadData?.seedWord === seedWord);
 
   const isDownloadDisabled = !encryptedData || 
     (hasDownloaded && 
     lastDownloadData?.seedWord === seedWord && 
-    lastDownloadData?.fileName === fileName);
+    lastDownloadData?.fileName === `${fileName.replace('.enc', '')}.enc`);
+
+  const isClearDisabled = !imageFile && !seedWord && !encryptedData && !fileName;
 
   return (
     <div className="space-y-6 p-4 border rounded-lg">
@@ -214,6 +219,7 @@ export const EncryptTab = () => {
         <Button
           variant="secondary"
           onClick={handleClear}
+          disabled={isClearDisabled}
           className="flex-1"
         >
           <X className="h-4 w-4 mr-2" />

@@ -92,16 +92,35 @@ export const EncryptTab = () => {
     if (!encryptedData) return;
     
     try {
-      await Filesystem.writeFile({
-        path: fileName,
-        data: encryptedData.data,
-        directory: Directory.ExternalStorage,
-        recursive: true
-      });
-      
-      toast({
-        description: "Archivo encriptado guardado en Descargas/Downloads 💾",
-      });
+      // En móvil, guardar en Downloads usando Filesystem
+      if (window.Capacitor) {
+        await Filesystem.writeFile({
+          path: `Download/${fileName}`,
+          data: encryptedData.data,
+          directory: Directory.ExternalStorage,
+          recursive: true
+        });
+        
+        toast({
+          description: "Archivo guardado en Descargas/Downloads 💾",
+        });
+      } 
+      // En navegador web, usar el método tradicional de descarga
+      else {
+        const blob = new Blob([encryptedData.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        toast({
+          description: "Archivo descargado correctamente 💾",
+        });
+      }
     } catch (error) {
       console.error('Error al guardar:', error);
       toast({

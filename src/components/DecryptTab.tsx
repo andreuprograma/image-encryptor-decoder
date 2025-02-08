@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -47,7 +48,7 @@ export const DecryptTab = () => {
     try {
       // Listar archivos del directorio Downloads
       const result = await Filesystem.readdir({
-        path: '',
+        path: 'Download',
         directory: Directory.ExternalStorage
       });
 
@@ -56,14 +57,14 @@ export const DecryptTab = () => {
 
       if (encFiles.length === 0) {
         toast({
-          description: "No se encontraron archivos .enc. Asegúrate de que los archivos encriptados estén en la carpeta Descargas/Downloads.",
+          description: "No se encontraron archivos .enc en Descargas/Downloads.",
         });
         return;
       }
 
       // Leer el contenido del primer archivo .enc encontrado
       const fileContent = await Filesystem.readFile({
-        path: encFiles[0].uri,
+        path: `Download/${encFiles[0].name}`,
         directory: Directory.ExternalStorage
       });
 

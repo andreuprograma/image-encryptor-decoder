@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -34,7 +35,7 @@ export default {
         }
       },
       animation: {
-        "opacity-pulse": "opacity-pulse 3s ease-in-out infinite",
+        "opacity-pulse": "opacity-pulse 6s ease-in-out infinite",
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out'
       },
@@ -92,3 +93,4 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+

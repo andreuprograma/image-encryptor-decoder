@@ -6,6 +6,7 @@ import { RotateCw, RotateCcw, Eye, EyeOff, X, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import CryptoJS from "crypto-js";
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Capacitor } from '@capacitor/core';
 
 export const EncryptTab = () => {
   const [image, setImage] = useState<File | null>(null);
@@ -93,7 +94,7 @@ export const EncryptTab = () => {
     
     try {
       // En móvil, guardar en Downloads usando Filesystem
-      if (window.Capacitor) {
+      if (Capacitor.isNativePlatform()) {
         await Filesystem.writeFile({
           path: `Download/${fileName}`,
           data: encryptedData.data,

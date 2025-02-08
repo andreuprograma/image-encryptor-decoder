@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -195,7 +196,6 @@ export const EncryptTab = () => {
         }}
         isEncrypted={isEncrypted}
         downloadedFileName={downloadedFileName}
-        encryptedSize={encryptedData?.size}
       />
 
       <SeedWordInput

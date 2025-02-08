@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -100,21 +101,13 @@ export const DecryptTab = () => {
           setLastUsedSeed(seedWord);
         } catch (error) {
           setDecryptedImage("");
-          setShowDialog(true);
-          setDialogMessage({ 
-            title: "Error", 
-            description: "Palabra semilla incorrecta o archivo corrupto" 
-          });
+          showMessage("Error", "Palabra semilla incorrecta o archivo corrupto");
         }
       };
 
       reader.readAsText(encFile);
     } catch (error) {
-      setShowDialog(true);
-      setDialogMessage({ 
-        title: "Error", 
-        description: "Error al desencriptar la imagen" 
-      });
+      showMessage("Error", "Error al desencriptar la imagen");
     }
   };
 
@@ -140,11 +133,7 @@ export const DecryptTab = () => {
 
     } catch (error) {
       console.error('Error al guardar:', error);
-      setShowDialog(true);
-      setDialogMessage({ 
-        title: "Error", 
-        description: "No se pudo guardar la imagen en el dispositivo" 
-      });
+      showMessage("Error", "No se pudo guardar la imagen en el dispositivo");
     }
   };
 
@@ -158,7 +147,6 @@ export const DecryptTab = () => {
     setLastUsedSeed("");
     setHasDownloaded(false);
     setLastDownloadData(null);
-    showMessage("Éxito", "Campos limpiados correctamente");
   };
 
   const handleShare = async () => {
@@ -183,7 +171,6 @@ export const DecryptTab = () => {
           }
         }
       } else {
-        // Fallback to clipboard for desktop
         try {
           await navigator.clipboard.writeText(decryptedImage);
           showMessage("Éxito", "Contenido copiado al portapapeles");
@@ -369,3 +356,4 @@ export const DecryptTab = () => {
     </div>
   );
 };
+

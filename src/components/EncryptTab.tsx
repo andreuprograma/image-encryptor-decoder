@@ -61,7 +61,7 @@ export const EncryptTab = () => {
     setLastDownloadData(null);
     setIsEncrypted(false);
     setDownloadedFileName("");
-  }, [seedWord, setEncryptedData, setLastEncryptedImage, setHasDownloaded, setIsEncrypted, setDownloadedFileName]);
+  }, [seedWord]);
 
   const showMessage = (title: string, description: string) => {
     setDialogMessage({ title, description });

@@ -8,11 +8,11 @@ const BUILD_TIMESTAMP = import.meta.env.VITE_BUILD_TIME || "Development";
 const Index = () => {
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <div className="flex flex-col items-center gap-2 mb-8">
+      <div className="flex items-center justify-center gap-4 mb-8">
         <img 
           src="/lovable-uploads/a6c7e6eb-754d-4e81-97de-af4799cc0bc8.png" 
           alt="Logo encriptador"
-          className="w-24 h-auto mb-2"
+          className="w-16 h-auto"
         />
         <h1 className="text-3xl font-bold text-center">
           Encriptador de Imágenes{" "}
